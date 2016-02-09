@@ -23,6 +23,7 @@ def list():
     fts = "\nFacts: \n"
     rs = "\nRules: \n"
 
+    # These are for-each loops
     for i in root:
         rv += "\t" + i + "\n"
 
@@ -37,8 +38,25 @@ def list():
 
     ans = rv + lv + fts + rs
     return ans
-def parser():
+
+def learn():
     return
+
+def parser(data):
+    if not data.startswith
+            if data >= 1:
+                result = collatz(data)
+                print "Collatz steps:", result
+            else:
+                print "Quit."
+                break
+        elif isinstance(data, str) or isinstance(data, float):
+            print "Quit."
+            break
+    return
+    return False
+
+
 
 def main():
     root.append("S = \"Sam likes Ice Cream\"")
@@ -49,6 +67,12 @@ def main():
     facts.append("S")
     facts.append("T")
     print list()
+    print "Welcome to Expert System Shell! Please enter Help for help, or other commands to teach something!"
+    print "Type Quit to quit."
+    while True:
+        data = str(input("> "))
+        if parser(data) == False:
+            break
     return
 if __name__ == "__main__":
     main()
