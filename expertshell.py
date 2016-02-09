@@ -24,30 +24,30 @@ def list():
     rs = "\nRules: \n"
 
     for i in root:
-        rv += "\t" + root[i, 1] + " = " + "\"" + root[i, 2] + "\"" + "\n"
+        rv += "\t" + i + "\n"
 
     for j in learned:
-        lv += "\t" + learned[j, 1] + " = " + "\"" + learned[j, 2] + "\"" + "\n"
+        lv += "\t" + j + "\n"
 
     for k in facts:
-        fts += "\t" + facts[k, 1] + "\n"
+        fts += "\t" + k + "\n"
 
     for l in rules:
-        rs += "\t" + rules[l, 1] + " -> " + rules[l, 2] + "\n"
+        rs += "\t" + l +"\n"
 
     ans = rv + lv + fts + rs
-    return
+    return ans
 def parser():
     return
 
 def main():
-    root.append(["S", "Sam likes Ice Cream"])
-    root.append(["V", "Today is Sunday"])
-    root.append(["U", "Ursula likes Chocolate"])
-    learned.append(["T", "Test learned variable"])
-    rules.append(["S&V", "T"])
-    facts.append(["S", True])
-    facts.append(["T", True])
+    root.append("S = \"Sam likes Ice Cream\"")
+    root.append("V = \"Today is Sunday\"")
+    root.append("U = \"Ursula likes Chocolate\"")
+    learned.append("T = \"Test learned variable\"")
+    rules.append("S^V -> T")
+    facts.append("S")
+    facts.append("T")
     print list()
     return
 if __name__ == "__main__":
