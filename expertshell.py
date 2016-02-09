@@ -26,13 +26,13 @@ def main():
     facts.append("S")
     facts.append("T")
     print listAll()
-    print "Welcome to Expert System Shell! Please enter Help for help, or other commands to teach something!"
-    print "Type Quit to quit."
+    print "Welcome to Expert System Shell! Please type 'q' to quit."
     while True:
-        data = str(input("> "))
-        if parseInput(data) == "Quit":
+        data = raw_input("> ")
+        inputResult = parseInput(data)
+        if inputResult == "q":
             break
-        elif not parseInput(data):
+        elif not inputResult:
             print "Wrong command!"
     return
 
@@ -60,41 +60,64 @@ def listAll():
     return ans
 
 # Teach methods
-def addRoot():
+def addRoot(strR):
+    print "Called Teach"
+    root.append(strR)
     return
 
-def addBool():
+def addBool(strB):
+    print "Called Teach"
+    facts.append(strB)
     return
 
-def addRule():
+def addRule(strRu):
+    print "Called Teach"
+    # Do logic checking for correct rule...?
+    rules.append(strRu)
     return
 
 # Learn more variables
 def learn():
+    print "Called Learn"
+    # Do a loop thru the rules (and vars and bools maybe), then add to learned list on each iteration
     return
 
 # Ask about a rule or var
 def query():
+    print "Called Query"
+    # Calculate and print truth value of their expression, using backwards chaining
     return
 
 # Return logic for why a learn process worked
 def why():
-    return
+    boolAns = False
+    strAns = str(boolAns)
+    print "Called Why"
+    # Calculate and print truth value of their expression along with the proof why.
+    return str(boolAns)
 
 # Parses the input and calls appropriate method
 def parseInput(data):
-    if data.startswith('Quit'):
-        return "Quit"
-    if data.startswith('Teach '):
-        
-    elif data == 'List':
+    if data.startswith("q"):
+        return "q"
+    if data.startswith("Teach "):
+        print "Call Teach"
+        return True
+    elif data == "List":
         print listAll()
-    elif data.startswith('Learn '):
-
-    elif data.startswith('Query '):
-
-    elif data.startswith('Why (') & data.endswith(')'):
+        return True
+    elif data == "Learn":
+        print "Call Learn"
+        learn()
+        return True
+    elif data.startswith("Query (") & data.endswith(")"):
+        print "Call Query"
+        query()
+        return True
+    elif data.startswith("Why (") & data.endswith(")"):
+        print "Call Why"
         why()
+        return True
     else:
         return False
 
