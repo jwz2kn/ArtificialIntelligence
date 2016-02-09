@@ -39,22 +39,39 @@ def list():
     ans = rv + lv + fts + rs
     return ans
 
+def addRoot():
+    return
+
+def addBool():
+    return
+
+def addRule():
+    return
+
 def learn():
     return
 
-def parser(data):
-    if not data.startswith
-            if data >= 1:
-                result = collatz(data)
-                print "Collatz steps:", result
-            else:
-                print "Quit."
-                break
-        elif isinstance(data, str) or isinstance(data, float):
-            print "Quit."
-            break
+def query():
     return
-    return False
+
+def why():
+    return
+
+def parseInput(data):
+    if data.startswith('Quit'):
+        return "Quit"
+    if data.startswith('Teach '):
+
+    elif data.startswith('List '):
+
+    elif data.startswith('Learn '):
+
+    elif data.startswith('Query '):
+
+    elif data.startswith('Why (') & data.endswith(')'):
+        why()
+    else:
+        return False
 
 
 
@@ -71,8 +88,10 @@ def main():
     print "Type Quit to quit."
     while True:
         data = str(input("> "))
-        if parser(data) == False:
+        if parseInput(data) == "Quit":
             break
+        elif not parseInput(data):
+            print "Wrong command!"
     return
 if __name__ == "__main__":
     main()
