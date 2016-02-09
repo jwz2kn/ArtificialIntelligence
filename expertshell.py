@@ -17,6 +17,25 @@ facts = list()
 rules = list()
 learned = list()
 
+def main():
+    root.append("S = \"Sam likes Ice Cream\"")
+    root.append("V = \"Today is Sunday\"")
+    root.append("U = \"Ursula likes Chocolate\"")
+    learned.append("T = \"Test learned variable\"")
+    rules.append("S^V -> T")
+    facts.append("S")
+    facts.append("T")
+    print list()
+    print "Welcome to Expert System Shell! Please enter Help for help, or other commands to teach something!"
+    print "Type Quit to quit."
+    while True:
+        data = str(input("> "))
+        if parseInput(data) == "Quit":
+            break
+        elif not parseInput(data):
+            print "Wrong command!"
+    return
+
 def list():
     rv = "Root Variables: \n"
     lv = "\nLearned Variables: \n"
@@ -73,26 +92,6 @@ def parseInput(data):
     else:
         return False
 
-
-
-def main():
-    root.append("S = \"Sam likes Ice Cream\"")
-    root.append("V = \"Today is Sunday\"")
-    root.append("U = \"Ursula likes Chocolate\"")
-    learned.append("T = \"Test learned variable\"")
-    rules.append("S^V -> T")
-    facts.append("S")
-    facts.append("T")
-    print list()
-    print "Welcome to Expert System Shell! Please enter Help for help, or other commands to teach something!"
-    print "Type Quit to quit."
-    while True:
-        data = str(input("> "))
-        if parseInput(data) == "Quit":
-            break
-        elif not parseInput(data):
-            print "Wrong command!"
-    return
 if __name__ == "__main__":
     main()
 
