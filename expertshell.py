@@ -25,7 +25,7 @@ def main():
     rules.append("S^V -> T")
     facts.append("S")
     facts.append("T")
-    print list()
+    print listAll()
     print "Welcome to Expert System Shell! Please enter Help for help, or other commands to teach something!"
     print "Type Quit to quit."
     while True:
@@ -36,7 +36,8 @@ def main():
             print "Wrong command!"
     return
 
-def list():
+# Return list of all strings variables
+def listAll():
     rv = "Root Variables: \n"
     lv = "\nLearned Variables: \n"
     fts = "\nFacts: \n"
@@ -58,6 +59,7 @@ def list():
     ans = rv + lv + fts + rs
     return ans
 
+# Teach methods
 def addRoot():
     return
 
@@ -67,22 +69,26 @@ def addBool():
 def addRule():
     return
 
+# Learn more variables
 def learn():
     return
 
+# Ask about a rule or var
 def query():
     return
 
+# Return logic for why a learn process worked
 def why():
     return
 
+# Parses the input and calls appropriate method
 def parseInput(data):
     if data.startswith('Quit'):
         return "Quit"
     if data.startswith('Teach '):
-
-    elif data.startswith('List '):
-
+        
+    elif data == 'List':
+        print listAll()
     elif data.startswith('Learn '):
 
     elif data.startswith('Query '):
@@ -91,6 +97,10 @@ def parseInput(data):
         why()
     else:
         return False
+
+# Parses the logic
+def parseLogic(logicStr):
+    return
 
 if __name__ == "__main__":
     main()
