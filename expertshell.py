@@ -62,12 +62,25 @@ def listAll():
 # Teach methods
 def addRoot(strR):
     print "Called Teach"
-    root.append(strR)
+    strRForm = strR.replace("Teach -R ", "")
+    root.append(strRForm)
     return
 
 def addBool(strB):
     print "Called Teach"
-    facts.append(strB)
+    indexOfEquals = strB.index("=")
+    firstPart = strB[6:indexOfEquals-1]
+    secondPart = strB[indexOfEquals+2:]
+    varIsInRoot = False
+    for val in root:
+        if firstPart in val:
+            varIsInRoot = True
+            break
+    if varIsInRoot:
+        if (not (firstPart in facts)) and secondPart == "true":
+            facts.append(firstPart)
+        if (firstPart in facts) and secondPart == "false":
+            facts.remove(firstPart)
     return
 
 def addRule(strRu):
@@ -101,6 +114,12 @@ def parseInput(data):
     if data.startswith("q"):
         return "q"
     if data.startswith("Teach "):
+        if data.startswith("Teach -R") & (" = \"" in data) & data.endswith("\""):
+            addRoot(data)
+        elif data.startswith("Teach -L"):
+            print "A learned variable cannot be set true directly! It must be inferred via inference rules."
+        elif data.startswith("Teach ") and " = " in data and (data.endswith("true") or data.endswith("false")):
+            addBool(data)
         print "Call Teach"
         return True
     elif data == "List":
