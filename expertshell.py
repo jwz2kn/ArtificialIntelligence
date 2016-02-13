@@ -17,6 +17,7 @@ root = list()
 facts = list()
 rules = list()
 learned = list()
+falsehoods = list()
 
 def main():
     root.append("S = \"Sam likes Ice Cream\"")
@@ -85,8 +86,12 @@ def addBool(strB):
     if varIsInRoot and not varIsInLearned:
         if (not (firstPart in facts)) and secondPart == "true":
             facts.append(firstPart)
+            if firstPart in falsehoods:
+                falsehoods.remove(firstPart)
         if (firstPart in facts) and secondPart == "false":
             facts.remove(firstPart)
+            if firstPart not in falsehoods:
+                falsehoods.append(firstPart)
     else:
         print "Variable must be a root variable to be given a truth value."
     return
@@ -99,9 +104,18 @@ def addRule(strRu):
     # secondPart = strRu[indexOfDash+3:]
     phrase = strRu[6:]
     allow = string.letters
-    finalPhr = re.sub('[^%s]' % allow, '', phrase)
-    print finalPhr
-    rules.append(phrase)
+    parsedPhr = re.sub('[^%s]' % allow, '', phrase)
+    print parsedPhr
+    print phrase
+
+    varsAreValid = True
+    for letter in parsedPhr:
+        if not (letter in facts or letter in falsehoods):
+            varsAreValid = False
+            break
+    # Dr. Diochnos informed us the testing team would not give logically invalid things
+    if varsAreValid:
+        rules.append(phrase)
     return
 
 # Learn more variables
