@@ -11,7 +11,8 @@ __author__ = 'John Zhang', 'Tyler Ealy'
 
 import numpy
 import scipy
-
+import string
+import re
 root = list()
 facts = list()
 rules = list()
@@ -72,21 +73,35 @@ def addBool(strB):
     firstPart = strB[6:indexOfEquals-1]
     secondPart = strB[indexOfEquals+2:]
     varIsInRoot = False
+    varIsInLearned = False
     for val in root:
         if firstPart in val:
             varIsInRoot = True
             break
-    if varIsInRoot:
+    for val in learned:
+        if firstPart in val:
+            varIsInLearned = True
+            break
+    if varIsInRoot and not varIsInLearned:
         if (not (firstPart in facts)) and secondPart == "true":
             facts.append(firstPart)
         if (firstPart in facts) and secondPart == "false":
             facts.remove(firstPart)
+    else:
+        print "Variable must be a root variable to be given a truth value."
     return
 
 def addRule(strRu):
     print "Called Teach"
     # Do logic checking for correct rule...?
-    rules.append(strRu)
+    indexOfDash = strRu.index("-")
+    # firstPart = strRu[6:indexOfDash-1]
+    # secondPart = strRu[indexOfDash+3:]
+    phrase = strRu[6:]
+    allow = string.letters
+    finalPhr = re.sub('[^%s]' % allow, '', phrase)
+    print finalPhr
+    rules.append(phrase)
     return
 
 # Learn more variables
@@ -120,6 +135,8 @@ def parseInput(data):
             print "A learned variable cannot be set true directly! It must be inferred via inference rules."
         elif data.startswith("Teach ") and " = " in data and (data.endswith("true") or data.endswith("false")):
             addBool(data)
+        elif data.startswith("Teach ") and " -> " in data:
+            addRule(data)
         print "Call Teach"
         return True
     elif data == "List":
