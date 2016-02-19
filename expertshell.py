@@ -9,8 +9,8 @@ __author__ = 'John Zhang', 'Tyler Ealy'
     jwz2kn@virginia.edu, tre7ca@virginia.edu
 """
 
-import numpy
-import scipy
+# import numpy
+# import scipy
 import string
 import re
 root = list()
@@ -129,7 +129,7 @@ def learn():
         logicStr = r[:indexOfDash-1]
         varStr = r[indexOfDash+3:]
         truthValue = parseLogic(logicStr)
-        if truthValue == true and varStr not in learned:
+        if truthValue == True and varStr not in learned:
             learned.append(varStr)
     return
 
