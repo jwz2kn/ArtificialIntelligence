@@ -122,6 +122,15 @@ def addRule(strRu):
 def learn():
     print "Called Learn"
     # Do a loop thru the rules (and vars and bools maybe), then add to learned list on each iteration
+    for r in rules:
+        # Parse the left side of rule, figure out truth value of the stuff on right side of rule
+        # if right side == true, add to learned variables
+        indexOfDash = r.index("-")
+        logicStr = r[:indexOfDash-1]
+        varStr = r[indexOfDash+3:]
+        truthValue = parseLogic(logicStr)
+        if truthValue == true and varStr not in learned:
+            learned.append(varStr)
     return
 
 # Ask about a rule or var
