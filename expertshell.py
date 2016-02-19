@@ -67,7 +67,11 @@ def addRoot(strR):
     strRForm = strR.replace("Teach -R ", "")
     root.append(strRForm)
     return
-
+def addLearned(strR):
+    print "Called Teach"
+    strRForm = strR.replace("Teach -L ", "")
+    learned.append(strRForm)
+    return
 def addBool(strB):
     print "Called Teach"
     indexOfEquals = strB.index("=")
@@ -93,24 +97,67 @@ def addBool(strB):
             if firstPart not in falsehoods:
                 falsehoods.append(firstPart)
     else:
-        print "Variable must be a root variable to be given a truth value."
+        print "Variable must be a root variable to be given a truth value by user."
     return
 
 def addRule(strRu):
     print "Called Teach"
     # Do logic checking for correct rule...?
     indexOfDash = strRu.index("-")
-    # firstPart = strRu[6:indexOfDash-1]
-    # secondPart = strRu[indexOfDash+3:]
+    firstPart = strRu[6:indexOfDash-1]
+    secondPart = strRu[indexOfDash+3:]
+    print firstPart
+    print secondPart
     phrase = strRu[6:]
-    allow = string.letters
-    parsedPhr = re.sub('[^%s]' % allow, '', phrase)
-    print parsedPhr
-    print phrase
-
+    # allow = string.letters
+    # parsedPhr = re.sub('[^%s]' % allow, '', phrase)
+    # print parsedPhr
+    # print phrase
+    #
     varsAreValid = True
-    for letter in parsedPhr:
-        if not (letter in facts or letter in falsehoods):
+    # for letter in parsedPhr:
+    #     if not (letter in facts or letter in falsehoods):
+    #         varsAreValid = False
+    #         break
+    propsLeft = list()
+    propsRight = list()
+    p = ""
+    for l in firstPart:
+        # Continue to parse for string until you hit &, |, !, (, )
+        if (l != "&") & (l != "|") & (l != "!") & (l != "(") & (l != ")"):
+            if l != firstPart[-1]:
+                p = p + l
+            else:
+                p = p + l
+                propsLeft.append(p)
+                p = ""
+        elif (l == "&") | (l == "|") | (l == "!") | (l == "(") | (l == ")"):
+            propsLeft.append(p)
+            p = ""
+
+    p = ""
+    for l in secondPart:
+        # Continue to parse for string until you hit &, |, !, (, )
+        if (l != "&") & (l != "|") & (l != "!") & (l != "(") & (l != ")"):
+            if l != secondPart[-1]:
+                p = p + l
+            else:
+                p = p + l
+                propsRight.append(p)
+                p = ""
+        elif (l == "&") | (l == "|") | (l == "!") | (l == "(") | (l == ")"):
+            propsRight.append(p)
+            p = ""
+    print propsLeft
+    for element in propsLeft:
+        print element
+        if not(element in facts) and not(element in falsehoods):
+            varsAreValid = False
+            break
+    print varsAreValid
+    for element in propsRight:
+        print element
+        if not(element in learned):
             varsAreValid = False
             break
     # Dr. Diochnos informed us the testing team would not give logically invalid things
@@ -155,7 +202,8 @@ def parseInput(data):
         if data.startswith("Teach -R") & (" = \"" in data) & data.endswith("\""):
             addRoot(data)
         elif data.startswith("Teach -L"):
-            print "A learned variable cannot be set true directly! It must be inferred via inference rules."
+            addLearned(data)
+
         elif data.startswith("Teach ") and " = " in data and (data.endswith("true") or data.endswith("false")):
             addBool(data)
         elif data.startswith("Teach ") and " -> " in data:
@@ -185,10 +233,16 @@ def parseLogic(logicStr):
     props = list()
     p = ""
     for l in logicStr:
+
         # Continue to parse for string until you hit &, |, !, (, )
-        if l is not "&" and l is not "|" and l is not "!" and l is not "(" and l is not ")":
-            p = p + l
-        else:
+        if (l != "&") & (l != "|") & (l != "!") & (l != "(") & (l != ")"):
+            if l != logicStr[-1]:
+                p = p + l
+            else:
+                p = p + l
+                props.append(p)
+                p = ""
+        elif (l == "&") | (l == "|") | (l == "!") | (l == "(") | (l == ")"):
             props.append(p)
             p = ""
 
