@@ -24,7 +24,7 @@ def main():
     root.append("V = \"Today is Sunday\"")
     root.append("U = \"Ursula likes Chocolate\"")
     learned.append("T = \"Test learned variable\"")
-    rules.append("S^V -> T")
+    rules.append("S&V -> T")
     facts.append("S")
     facts.append("T")
     print listAll()
@@ -182,6 +182,17 @@ def parseInput(data):
 
 # Parses the logic
 def parseLogic(logicStr):
+    props = list()
+    p = ""
+    for l in logicStr:
+        # Continue to parse for string until you hit &, |, !, (, )
+        if l is not "&" and l is not "|" and l is not "!" and l is not "(" and l is not ")":
+            p = p + l
+        else:
+            props.append(p)
+            p = ""
+
+    print props
     return
 
 if __name__ == "__main__":
