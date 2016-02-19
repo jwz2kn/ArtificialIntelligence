@@ -24,9 +24,9 @@ def main():
     root.append("V = \"Today is Sunday\"")
     root.append("U = \"Ursula likes Chocolate\"")
     learned.append("T = \"Test learned variable\"")
-    rules.append("S&V -> T")
     facts.append("S")
-    facts.append("T")
+    facts.append("V")
+    rules.append("S&V -> T")
     print listAll()
     print "Welcome to Expert System Shell! Please type 'q' to quit."
     while True:
@@ -58,7 +58,10 @@ def listAll():
     for l in rules:
         rs += "\t" + l +"\n"
 
-    ans = rv + lv + fts + rs
+    fal = "\nFalsehoods: \n"
+    for f in falsehoods:
+        fal += "\t" + f + "\n"
+    ans = rv + lv + fts + fal +rs
     return ans
 
 # Teach methods
@@ -67,11 +70,13 @@ def addRoot(strR):
     strRForm = strR.replace("Teach -R ", "")
     root.append(strRForm)
     return
+
 def addLearned(strR):
     print "Called Teach"
     strRForm = strR.replace("Teach -L ", "")
     learned.append(strRForm)
     return
+
 def addBool(strB):
     print "Called Teach"
     indexOfEquals = strB.index("=")
@@ -88,12 +93,14 @@ def addBool(strB):
             varIsInLearned = True
             break
     if varIsInRoot and not varIsInLearned:
+        # May need to move this part of if statement for edge cases
         if (not (firstPart in facts)) and secondPart == "true":
             facts.append(firstPart)
             if firstPart in falsehoods:
                 falsehoods.remove(firstPart)
-        if (firstPart in facts) and secondPart == "false":
-            facts.remove(firstPart)
+        if secondPart == "false":
+            if firstPart in facts:
+                facts.remove(firstPart)
             if firstPart not in falsehoods:
                 falsehoods.append(firstPart)
     else:
@@ -132,11 +139,13 @@ def addRule(strRu):
                 propsLeft.append(p)
                 p = ""
         elif (l == "&") | (l == "|") | (l == "!") | (l == "(") | (l == ")"):
-            propsLeft.append(p)
+            if p != "":
+                propsLeft.append(p)
             p = ""
 
     p = ""
     for l in secondPart:
+        print p
         # Continue to parse for string until you hit &, |, !, (, )
         if (l != "&") & (l != "|") & (l != "!") & (l != "(") & (l != ")"):
             if l != secondPart[-1]:
@@ -149,6 +158,7 @@ def addRule(strRu):
             propsRight.append(p)
             p = ""
     print propsLeft
+    print propsRight
     for element in propsLeft:
         print element
         if not(element in facts) and not(element in falsehoods):
@@ -157,9 +167,12 @@ def addRule(strRu):
     print varsAreValid
     for element in propsRight:
         print element
-        if not(element in learned):
+        for value in learned:
             varsAreValid = False
-            break
+            if value.startswith(element):
+                varsAreValid = True
+                break
+    print varsAreValid
     # Dr. Diochnos informed us the testing team would not give logically invalid things
     if varsAreValid:
         rules.append(phrase)
@@ -176,8 +189,16 @@ def learn():
         logicStr = r[:indexOfDash-1]
         varStr = r[indexOfDash+3:]
         truthValue = parseLogic(logicStr)
-        if truthValue == True and varStr not in learned:
-            learned.append(varStr)
+        varsAreValid = False
+        for value in learned:
+            varsAreValid = False
+            if value.startswith(varStr):
+                varsAreValid = True
+                break
+        if truthValue == True and varsAreValid:
+            facts.append(varStr)
+        elif truthValue == False and varsAreValid:
+            falsehoods.append(varStr)
     return
 
 # Ask about a rule or var
@@ -201,7 +222,7 @@ def parseInput(data):
     if data.startswith("Teach "):
         if data.startswith("Teach -R") & (" = \"" in data) & data.endswith("\""):
             addRoot(data)
-        elif data.startswith("Teach -L"):
+        elif data.startswith("Teach -L") & (" = \"" in data) & data.endswith("\""):
             addLearned(data)
 
         elif data.startswith("Teach ") and " = " in data and (data.endswith("true") or data.endswith("false")):
@@ -232,18 +253,36 @@ def parseInput(data):
 def parseLogic(logicStr):
     props = list()
     p = ""
+    evalStr = ""
     for l in logicStr:
-
+        print p, l
         # Continue to parse for string until you hit &, |, !, (, )
         if (l != "&") & (l != "|") & (l != "!") & (l != "(") & (l != ")"):
             if l != logicStr[-1]:
                 p = p + l
-            else:
+            else: # Takes care of last proposition
                 p = p + l
                 props.append(p)
+                if p in facts:
+                    evalStr += "True"
+                elif p in falsehoods:
+                    evalStr += "False"
                 p = ""
-        elif (l == "&") | (l == "|") | (l == "!") | (l == "(") | (l == ")"):
-            props.append(p)
+        elif (l == "&") | (l == "|") | (l == "!") | (l == "(") | (l == ")"): # Takes care of middle propositions
+            if p != "":
+                props.append(p)
+                if p in facts:
+                    evalStr += "True "
+                elif p in falsehoods:
+                    evalStr += "False "
+            if l == "&":
+                evalStr += "and "
+            elif l == "|":
+                evalStr += "or "
+            elif l == "!":
+                evalStr += "not "
+            elif l == "(" or l == ")":
+                evalStr += l
             p = ""
 
     print props
@@ -252,9 +291,11 @@ def parseLogic(logicStr):
     # ['S', 'T', 'U']
     # Loop thru props
     # If current prop in facts or falsehoods, add corresponding truth value to boolean list
+    print evalStr
+    result = eval(evalStr)
 
-
-    return
+    print result
+    return result
 
 if __name__ == "__main__":
     main()
