@@ -247,6 +247,13 @@ def parseLogic(logicStr):
             p = ""
 
     print props
+    # What rule looks like coming in: S&T|U.
+    # What we want: True&False|True
+    # ['S', 'T', 'U']
+    # Loop thru props
+    # If current prop in facts or falsehoods, add corresponding truth value to boolean list
+
+
     return
 
 if __name__ == "__main__":
