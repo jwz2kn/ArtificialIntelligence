@@ -18,10 +18,7 @@ facts = list()
 rules = list()
 learned = list()
 falsehoods = list()
-tempFacts = list()
-tempFalsehoods = list()
-ruleStack = list()
-
+whyStr = ""
 def main():
     root.append("S = \"Sam likes Ice Cream\"")
     root.append("V = \"Today is Sunday\"")
@@ -202,7 +199,7 @@ def query(rawData):
     p = ""
     evalStr = ""
     for l in rawData:
-        print p, l
+        # print p, l
         # Continue to parse for string until you hit &, |, !, (, )
         if (l != "&") & (l != "|") & (l != "!") & (l != "(") & (l != ")"):
             if l != rawData[-1]:
@@ -210,9 +207,9 @@ def query(rawData):
             else: # Takes care of last proposition
                 p = p + l
                 props.append(p)
-                if (p in facts) or (p in tempFacts):
+                if p in facts:
                     evalStr += "True"
-                elif (p in falsehoods) or (p in tempFalsehoods):
+                elif p in falsehoods:
                     evalStr += "False"
                 else:
                     propIsPresent = False
@@ -231,10 +228,10 @@ def query(rawData):
                             break
                     if not propIsPresent:
                         varPrinted = "This statement is not provable because there is no rule that can determine " + \
-                            "the truth value of the proposition " + p
+                            "the truth value of the proposition " + p + "."
                         print varPrinted
                         return
-            p = ""
+                p = ""
         elif (l == "&") | (l == "|") | (l == "!") | (l == "(") | (l == ")"): # Takes care of middle propositions
             if p != "":
                 props.append(p)
@@ -259,7 +256,7 @@ def query(rawData):
                             break
                     if not propIsPresent:
                         varPrinted = "This statement is not provable because there is no rule that can determine " + \
-                            "the truth value of the proposition " + p
+                            "the truth value of the proposition " + p + "."
                         print varPrinted
                         return
 
@@ -275,25 +272,175 @@ def query(rawData):
                 evalStr += l
             p = ""
 
-    print props
+    #print props
     # What rule looks like coming in: S&T|U.
     # What we want: True&False|True
     # ['S', 'T', 'U']
     # Loop thru props
     # If current prop in facts or falsehoods, add corresponding truth value to boolean list
-    print evalStr
+    #print evalStr
     result = eval(evalStr)
     # result is a boolean that eval returns
     print result
     return
 
 # Return logic for why a learn process worked
-def why():
-    boolAns = False
-    strAns = str(boolAns)
+def why(rawData):
     print "Called Why"
-    # Calculate and print truth value of their expression along with the proof why.
-    return str(boolAns)
+    props = list()
+    p = ""
+    evalStr = ""
+    whyStr = ""
+    whyStrProps = ""
+    for l in rawData:
+        # print p, l
+        # Continue to parse for string until you hit &, |, !, (, )
+        if (l != "&") & (l != "|") & (l != "!") & (l != "(") & (l != ")"):
+            if l != rawData[-1]:
+                p = p + l
+            else: # Takes care of last proposition
+                p = p + l
+                props.append(p)
+                if p in facts:
+                    evalStr += "True"
+                    rootRight = ""
+                    for r in root:
+                        if p == r[:r.index("=")-1]:
+                            rootRight = r[r.index("=")+3: len(r) - 1]
+                            break
+                    for r in learned:
+                        if p == r[:r.index("=")-1]:
+                            rootRight = r[r.index("=")+3: len(r) - 1]
+                            break
+                    whyStr += "I KNOW THAT IT IS TRUE THAT " + rootRight + "\n"
+                    whyStrProps += rootRight
+                elif p in falsehoods:
+                    evalStr += "False"
+                    rootRight = ""
+                    for r in root:
+                        if p == r[:r.index("=")-1]:
+                            rootRight = r[r.index("=")+3: len(r) - 1]
+                            break
+                    for r in learned:
+                        if p == r[:r.index("=")-1]:
+                            rootRight = r[r.index("=")+3: len(r) - 1]
+                            break
+                    whyStr += "I KNOW THAT IT IS NOT TRUE THAT " + rootRight + "\n"
+                    whyStrProps += rootRight
+                else:
+                    propIsPresent = False
+                    for r in rules:
+                        # Do stuff here
+                        ruleRight = r[r.index(">")+2:]
+                        ruleLeft = r[:r.index("-")-1]
+                        # if right side of the rule == current proposition
+                        if ruleRight == p:
+                            propIsPresent = True
+                            boolVal = parseLogic(ruleLeft)
+                            rootRight = ""
+                            for r in root:
+                                if p == r[:r.index("=")-1]:
+                                    rootRight = r[r.index("=")+3: len(r) - 1]
+                                    break
+                            for r in learned:
+                                if p == r[:r.index("=")-1]:
+                                    rootRight = r[r.index("=")+3: len(r) - 1]
+                                    break
+                            if boolVal == True:
+                                evalStr += "True"
+                                whyStr += "BECAUSE " + " " + "I KNOW THAT "+ rootRight + "\n"
+                            elif boolVal == False:
+                                evalStr += "False"
+                                whyStr += "BECAUSE IT IS NOT TRUE THAT " + " " + "I CANNOT PROVE "+ rootRight + "\n"
+                            break
+                    if not propIsPresent:
+                        varPrinted = "This statement is not provable because there is no rule that can determine " + \
+                            "the truth value of the proposition " + p + "."
+                        print varPrinted
+                        return
+                p = ""
+        elif (l == "&") | (l == "|") | (l == "!") | (l == "(") | (l == ")"): # Takes care of middle propositions
+            if p != "":
+                props.append(p)
+                if p in facts:
+                    evalStr += "True "
+                    rootRight = ""
+                    for r in root:
+                        if p == r[:r.index("=")-1]:
+                            rootRight = r[r.index("=")+3: len(r) - 1]
+                            break
+                    for r in learned:
+                        if p == r[:r.index("=")-1]:
+                            rootRight = r[r.index("=")+3: len(r) - 1]
+                            break
+                    whyStr += "I KNOW THAT IT IS TRUE THAT " + rootRight + "\n"
+                    whyStrProps += rootRight
+                elif p in falsehoods:
+                    evalStr += "False "
+                    rootRight = ""
+                    for r in root:
+                        if p == r[:r.index("=")-1]:
+                            rootRight = r[r.index("=")+3: len(r) - 1]
+                            break
+                    for r in learned:
+                        if p == r[:r.index("=")-1]:
+                            rootRight = r[r.index("=")+3: len(r) - 1]
+                            break
+                    whyStr += "I KNOW THAT IT IS NOT TRUE THAT " + rootRight + "\n"
+                    whyStrProps += rootRight
+                else:
+                    propIsPresent = False
+                    for r in rules:
+                        # Do stuff here
+                        ruleRight = r[r.index(">")+2:]
+                        ruleLeft = r[:r.index("-")-1]
+                        # if right side of the rule == current proposition
+                        if ruleRight == p:
+                            propIsPresent = True
+                            boolVal = parseLogic(ruleLeft)
+                            if boolVal == True:
+                                evalStr += "True"
+                                whyStr += "BECAUSE " + "\n"
+                            elif boolVal == False:
+                                evalStr += "False"
+                            break
+                    if not propIsPresent:
+                        varPrinted = "This statement is not provable because there is no rule that can determine " + \
+                            "the truth value of the proposition " + p + "."
+                        print varPrinted
+                        return
+
+            if l == "&":
+                evalStr += "and "
+                whyStrProps += " AND "
+            elif l == "|":
+                evalStr += "or "
+                whyStrProps += " OR "
+            elif l == "!":
+                evalStr += "not "
+                whyStrProps += " NOT "
+            elif l == "(" or l == ")":
+                evalStr += l
+                whyStrProps += l
+            p = ""
+
+    #print props
+    # What rule looks like coming in: S&T|U.
+    # What we want: True&False|True
+    # ['S', 'T', 'U']
+    # Loop thru props
+    # If current prop in facts or falsehoods, add corresponding truth value to boolean list
+    #print evalStr
+    result = eval(evalStr)
+    # result is a boolean that eval returns
+    print result
+    if result == True:
+        whyStr += "I THUS KNOW THAT " + whyStrProps
+    else:
+        whyStr += "THUS I CANNOT PROVE " + whyStrProps
+    print whyStr
+    return
+
 
 # Parses the input and calls appropriate method
 def parseInput(data):
@@ -318,14 +465,15 @@ def parseInput(data):
         print "Call Learn"
         learn()
         return True
-    elif data.startswith("Query (") & data.endswith(")"):
+    elif data.startswith("Query "):
         print "Call Query"
         rawData = data[6:]
         query(rawData)
         return True
-    elif data.startswith("Why (") & data.endswith(")"):
+    elif data.startswith("Why "):
         print "Call Why"
-        why()
+        rawData = data[4:]
+        why(rawData)
         return True
     else:
         return False
@@ -336,7 +484,7 @@ def parseLogic(logicStr):
     p = ""
     evalStr = ""
     for l in logicStr:
-        print p, l
+        #print p, l
         # Continue to parse for string until you hit &, |, !, (, )
         if (l != "&") & (l != "|") & (l != "!") & (l != "(") & (l != ")"):
             if l != logicStr[-1]:
@@ -366,16 +514,16 @@ def parseLogic(logicStr):
                 evalStr += l
             p = ""
 
-    print props
+    #print props
     # What rule looks like coming in: S&T|U.
     # What we want: True&False|True
     # ['S', 'T', 'U']
     # Loop thru props
     # If current prop in facts or falsehoods, add corresponding truth value to boolean list
-    print evalStr
+    #print evalStr
     result = eval(evalStr)
     # result is a boolean that eval returns
-    print result
+    #print result
     return result
 
 if __name__ == "__main__":
