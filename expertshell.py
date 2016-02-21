@@ -116,16 +116,7 @@ def addRule(strRu):
     print firstPart
     print secondPart
     phrase = strRu[6:]
-    # allow = string.letters
-    # parsedPhr = re.sub('[^%s]' % allow, '', phrase)
-    # print parsedPhr
-    # print phrase
-    #
     varsAreValid = True
-    # for letter in parsedPhr:
-    #     if not (letter in facts or letter in falsehoods):
-    #         varsAreValid = False
-    #         break
     propsLeft = list()
     propsRight = list()
     p = ""
@@ -202,10 +193,63 @@ def learn():
     return
 
 # Ask about a rule or var
-def query():
+def query(rawData):
     print "Called Query"
-    # Calculate and print truth value of their expression, using backwards chaining
-    return
+    props = list()
+    p = ""
+    evalStr = ""
+    for l in rawData:
+        print p, l
+        # Continue to parse for string until you hit &, |, !, (, )
+        if (l != "&") & (l != "|") & (l != "!") & (l != "(") & (l != ")"):
+            if l != rawData[-1]:
+                p = p + l
+            else: # Takes care of last proposition
+                p = p + l
+                props.append(p)
+                if p in facts:
+                    evalStr += "True"
+                elif p in falsehoods:
+                    evalStr += "False"
+                else:
+                    for r in rules:
+                        # Do stuff here
+                        truthValue = parseLogic(rawData)
+                        if truthValue == True:
+                            # Do more stuff here
+                            print ""
+                        elif truthValue == False:
+                            # Do even more stuff here
+                            print ""
+            p = ""
+        elif (l == "&") | (l == "|") | (l == "!") | (l == "(") | (l == ")"): # Takes care of middle propositions
+            if p != "":
+                props.append(p)
+                if p in facts:
+                    evalStr += "True "
+                elif p in falsehoods:
+                    evalStr += "False "
+            if l == "&":
+                evalStr += "and "
+            elif l == "|":
+                evalStr += "or "
+            elif l == "!":
+                evalStr += "not "
+            elif l == "(" or l == ")":
+                evalStr += l
+            p = ""
+
+    print props
+    # What rule looks like coming in: S&T|U.
+    # What we want: True&False|True
+    # ['S', 'T', 'U']
+    # Loop thru props
+    # If current prop in facts or falsehoods, add corresponding truth value to boolean list
+    print evalStr
+    result = eval(evalStr)
+    # result is a boolean that eval returns
+    print result
+    return result
 
 # Return logic for why a learn process worked
 def why():
@@ -240,7 +284,8 @@ def parseInput(data):
         return True
     elif data.startswith("Query (") & data.endswith(")"):
         print "Call Query"
-        query()
+        rawData = data[6:]
+        query(rawData)
         return True
     elif data.startswith("Why (") & data.endswith(")"):
         print "Call Why"
@@ -293,7 +338,7 @@ def parseLogic(logicStr):
     # If current prop in facts or falsehoods, add corresponding truth value to boolean list
     print evalStr
     result = eval(evalStr)
-
+    # result is a boolean that eval returns
     print result
     return result
 
