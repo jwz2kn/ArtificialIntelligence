@@ -1,0 +1,8 @@
+import world.Robot;
+
+public class RobotTravelClass extends Robot{
+	@Override
+	public void travelToDestination() {
+		
+	}
+}

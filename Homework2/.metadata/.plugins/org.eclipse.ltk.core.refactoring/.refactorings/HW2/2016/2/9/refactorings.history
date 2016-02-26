@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;RobotTravelClass&apos; to &apos;RobotTravel&apos;&#x0A;- Original project: &apos;HW2&apos;&#x0A;- Original element: &apos;RobotTravelClass&apos;&#x0A;- Renamed element: &apos;RobotTravel&apos;&#x0A;- Update references to refactored element&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;RobotTravelClass&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;{RobotTravelClass.java[RobotTravelClass" matchStrategy="1" name="RobotTravel" qualified="false" references="true" similarDeclarations="false" stamp="1456446625661" textual="false" version="1.0"/>
+</session>
