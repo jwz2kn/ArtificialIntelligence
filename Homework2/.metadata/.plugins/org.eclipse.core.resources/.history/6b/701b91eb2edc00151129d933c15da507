@@ -11,7 +11,7 @@ public class RobotTravelTester {
 			*/
 			World myWorld = new World ("myInputFile1.txt ", false );
 			/* Create a robot that will run around in myWorld */
-			RobotTravel myRobot = new RobotTravel(myWorld.getStartPos(), myWorld.getEndPos());
+			RobotTravel myRobot = new RobotTravel(myWorld.getEndPos()) ;
 			myRobot.addToWorld (myWorld);
 			// Tell the robot to travel to the destination .
 			// You will be implementing this method yourself !

@@ -5,10 +5,10 @@ public class RobotTravel extends Robot{
 	Point start;
 	Point destination;
 	
-	public RobotTravel(Point st, Point dest) {
+	public RobotTravel(Point dest) {
 		super();
-		start = st;
 		destination = dest;
+		start = super.getPosition();
 	}
 	
 	@Override
