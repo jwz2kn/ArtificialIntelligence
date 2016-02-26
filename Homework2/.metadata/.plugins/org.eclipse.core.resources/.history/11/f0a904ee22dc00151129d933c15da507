@@ -1,0 +1,11 @@
+import java.awt.Point;
+
+import world.Robot;
+
+public class RobotTravel extends Robot{
+	@Override
+	public void travelToDestination() {
+		super.pingMap(new Point(2, 2));
+		
+	}
+}
