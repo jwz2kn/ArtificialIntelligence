@@ -1,0 +1,11 @@
+package snippet;
+
+public class Snippet {
+	public static void main(String[] args) {
+		/CS4710_16Sp_HW2/TestCases/myInputFile1.txt
+		/CS4710_16Sp_HW2/TestCases/myInputFile2.txt
+		/CS4710_16Sp_HW2/TestCases/myInputFile3.txt
+		/CS4710_16Sp_HW2/TestCases/myInputFile4.txt
+	}
+}
+

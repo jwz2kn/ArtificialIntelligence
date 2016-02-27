@@ -1,0 +1,9 @@
+package snippet;
+
+public class Snippet {
+	myInputFile1.txt
+	myInputFile2.txt
+	myInputFile3.txt
+	myInputFile4.txt
+}
+
