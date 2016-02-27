@@ -5,7 +5,6 @@ public class RobotTravel extends Robot{
 	Point start;
 	Point destination;
 	boolean uncertainty;
-	
 	public RobotTravel(Point st, Point dest, boolean u) {
 		super();
 		start = st;
