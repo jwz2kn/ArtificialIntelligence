@@ -1,0 +1,49 @@
+import java.awt.Point;
+import java.util.*;
+import world.*;
+public class RobotTravel extends Robot{
+	Point start;
+	Point destination;
+	boolean uncertainty;
+	int cols;
+	int rows;
+	
+	public RobotTravel(Point st, Point dest, boolean u) {
+		super();
+		start = st;
+		destination = dest;
+		uncertainty = u;
+	}
+	
+	@Override
+	public void travelToDestination() {
+		if (!uncertainty) {
+			super.getPosition();
+			System.out.println("travelToDestinaton is called");
+			System.out.println("Destination Coordinate: "
+					+"(" +destination.getX() + ", " + destination.getY() + 
+					") Destination String: "+super.pingMap(destination));
+			super.pingMap(destination);
+			System.out.println(super.pingMap(new Point(2,2)));
+		}
+		else {
+			
+		}
+	}
+
+	public int getCols() {
+		return cols;
+	}
+
+	public void setCols(int cols) {
+		this.cols = cols;
+	}
+
+	public int getRows() {
+		return rows;
+	}
+
+	public void setRows(int rows) {
+		this.rows = rows;
+	}
+}

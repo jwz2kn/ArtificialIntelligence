@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/trealy1/Desktop/Spring 2016/Artificial Intelligence/ArtificialIntelligence/CS4710_16Sp_HW2.zip"/>
-	<classpathentry kind="lib" path="C:/Users/trealy1/Desktop/Spring 2016/Artificial Intelligence/ArtificialIntelligence/CS4710_16Sp_HW2/HW2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/Users/John/Desktop/CS 4710/ArtificialIntelligence/CS4710_16Sp_HW2/HW2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
