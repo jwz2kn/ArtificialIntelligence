@@ -8,10 +8,10 @@ INDEX VERSION 1.127+/Users/John/Desktop/CS 4710/ArtificialIntelligence/Homework2
 2595300895.index
 2540607589.index
 642370658.index
-1613657645.index
 2453379900.index
-3765020915.index
+1613657645.index
 4266858779.index
+3765020915.index
 1294930193.index
 491276852.index
 2782194221.index
