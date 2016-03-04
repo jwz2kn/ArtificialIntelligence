@@ -12,7 +12,7 @@
 		<link>
 			<name>.link0</name>
 			<type>2</type>
-			<location>/Users/John/Desktop/CS 4710/ArtificialIntelligence/CS4710_16Sp_HW2/TestCases</location>
+			<location>/Users/John/Desktop/CS 4710/ArtificialIntelligence/CS4710_16Sp_HW2/META-INF</location>
 		</link>
 		<link>
 			<name>.link1</name>
@@ -22,7 +22,7 @@
 		<link>
 			<name>.link2</name>
 			<type>2</type>
-			<location>/Users/John/Desktop/CS 4710/ArtificialIntelligence/CS4710_16Sp_HW2/META-INF</location>
+			<location>/Users/John/Desktop/CS 4710/ArtificialIntelligence/CS4710_16Sp_HW2/TestCases</location>
 		</link>
 	</linkedResources>
 </projectDescription>

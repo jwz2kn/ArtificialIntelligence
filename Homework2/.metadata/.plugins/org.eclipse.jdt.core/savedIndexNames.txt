@@ -14,9 +14,10 @@ INDEX VERSION 1.127+/Users/John/Desktop/CS 4710/ArtificialIntelligence/Homework2
 3765020915.index
 1294930193.index
 491276852.index
+2678982099.index
 2782194221.index
-241682911.index
 2422619679.index
+241682911.index
 4113940940.index
 1271342938.index
 1582146473.index
