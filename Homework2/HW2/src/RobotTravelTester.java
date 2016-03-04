@@ -12,14 +12,17 @@ public class RobotTravelTester {
 			*/
 			boolean uncertainty = false;
 			World myWorld = new World ("myInputFile1.txt", uncertainty );
+			
 			System.out.println("World Created");
 			/* Create a robot that will run around in myWorld */
 			RobotTravel myRobot 
-				= new RobotTravel(myWorld.getStartPos(), myWorld.getEndPos(), myWorld.getUncertain());
+				= new RobotTravel(myWorld.getStartPos(), myWorld.getEndPos(), 
+						myWorld.getUncertain(), myWorld.numCols(), myWorld.numRows());
 			myRobot.addToWorld (myWorld);
-			myRobot.setCols(myWorld.numCols());
-			myRobot.setRows(myWorld.numRows());
-			// Tell the robot to travel to the destination .
+//			myRobot.setCols(myWorld.numCols());
+//			myRobot.setRows(myWorld.numRows());
+			//myWorld.createGUI(400, 400, 200);
+			// Tell the robot to travel to the destination.
 			// You will be implementing this method yourself !
 			myRobot.travelToDestination();
 		} catch (Exception e) {

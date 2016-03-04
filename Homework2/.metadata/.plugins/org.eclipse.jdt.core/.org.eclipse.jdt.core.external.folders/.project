@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>.org.eclipse.jdt.core.external.folders</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>.link0</name>
+			<type>2</type>
+			<location>/Users/John/Desktop/CS 4710/ArtificialIntelligence/CS4710_16Sp_HW2/TestCases</location>
+		</link>
+		<link>
+			<name>.link1</name>
+			<type>2</type>
+			<location>/Users/John/Desktop/CS 4710/ArtificialIntelligence/CS4710_16Sp_HW2/guiImages</location>
+		</link>
+		<link>
+			<name>.link2</name>
+			<type>2</type>
+			<location>/Users/John/Desktop/CS 4710/ArtificialIntelligence/CS4710_16Sp_HW2/META-INF</location>
+		</link>
+	</linkedResources>
+</projectDescription>

@@ -1,75 +1,85 @@
 import java.awt.Point;
 import java.util.*;
 import world.*;
+
 public class RobotTravel extends Robot{
 	Point start;
 	Point destination;
 	boolean uncertainty;
 	int cols;
 	int rows;
-	Queue<Coordinate> coordinates;
-	int[][] map;
-	public RobotTravel(Point st, Point dest, boolean u) {
+	Map<Point, Point> cameFrom;
+	
+	public RobotTravel(Point st, Point dest, boolean u, int c, int r) {
 		super();
 		start = st;
 		destination = dest;
 		uncertainty = u;
-		coordinates = new LinkedList();
-		map = new int[rows][cols];
+		cols = c;
+		rows = r;
 	}
 	
 	@Override
 	public void travelToDestination() {
 		if (!uncertainty) {
-//			super.getPosition();
-//			System.out.println("travelToDestinaton is called");
-//			System.out.println("Destination Coordinate: "
-//					+"(" +destination.getX() + ", " + destination.getY() + 
-//					") Destination String: "+super.pingMap(destination));
-//			super.pingMap(destination);
-//			System.out.println(super.pingMap(new Point(2,2)));
-			
+			List<Point> path = AStar(start, destination);
+			if (path.isEmpty() && path != null) {
+				for(int i = 0; i < path.size(); i++) {
+					super.move(path.get(i));
+				}
+			} else {
+				System.out.println("You were either at the destination already or there wasn't a valid path to get there!");
+			}
 			
 		}
 		else {
 			
 		}
 	}
-
-	public int getCols() {
-		return cols;
-	}
-
-	public void setCols(int cols) {
-		this.cols = cols;
-	}
-
-	public int getRows() {
-		return rows;
-	}
-
-	public void setRows(int rows) {
-		this.rows = rows;
-	}
 	
-	public void AStar(Point st, Point go) {
-		List<Point> evaluated = new LinkedList<Point>();
-		List<Point> notEvaluated = new LinkedList<Point>();
+	public List<Point> AStar(Point st, Point go) {
+		
+		List<Point> evaluated = new ArrayList<Point>();
+		List<Point> notEvaluated = new ArrayList<Point>();
 		notEvaluated.add(st);
-		Map<Point, Point> cameFrom = new HashMap<Point, Point>();
+		cameFrom = new HashMap<Point, Point>();
+		
 		Map<Point, Double> gScore = new HashMap<Point, Double>();
+		//Put default value of positive infinity into map
+		for (int i = 0; i < rows; i++) { //x axis
+			for (int j = 0; j < cols; j++) { //y axis
+				gScore.put(new Point(i, j), Double.POSITIVE_INFINITY);
+			}
+		}
 		gScore.put(st, 0.0);
+		System.out.println("gScores: " + gScore.toString());
+		
 		Map<Point, Double> fScore = new HashMap<Point, Double>();
-		fScore.put(st, heuristic(st, destination));
-		while (!notEvaluated.isEmpty()) {
+		//Put default value of positive infinity into map
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				fScore.put(new Point(i, j), Double.POSITIVE_INFINITY);
+			}
+		}		
+		fScore.put(st, heuristic(st, go));
+		System.out.println("fScores: " + fScore.toString());
+		
+		//Switch != and == to turn loop on and off
+		while (notEvaluated.isEmpty() != false) {
+			//System.out.println(notEvaluated.toString());
+			System.out.println("----------------------------------------------------------------");
+			System.out.println("Start: " + st.toString());
 			double lowestCurrentScore = Collections.min(fScore.values());
 			Point current = (Point) getKeyFromValue(fScore, lowestCurrentScore);
-			if (current.equals(destination)) {
-				reconstructPath(current, destination);
-				return;
+			System.out.println("Lowest current fScore: " + lowestCurrentScore);
+			System.out.println("fScores: " + fScore.toString());
+			//current.equals(destination)
+			if ((int) current.getX() == (int) go.getX() && (int) current.getY() == (int) go.getY()) {
+				return reconstructPath(cameFrom, go);
 			}
-			notEvaluated.remove(current);
-			evaluated.add(current);
+			if (notEvaluated.contains(current)) notEvaluated.remove(current);
+			if (!evaluated.contains(current)) evaluated.add(current);
+			System.out.println("Current: " + current.toString());
 			
 			//Generate adjacents
 			List<Point> adj = new ArrayList<Point>();
@@ -83,41 +93,74 @@ public class RobotTravel extends Robot{
 			Point ea = new Point((int)current.getX(), (int)current.getY() + 1);
 			adj.add(nw); adj.add(ne); adj.add(n); adj.add(w);
 			adj.add(sw); adj.add(s); adj.add(se); adj.add(ea);
-			for (Point el : adj) {
-				if (super.pingMap(new Point((int)el.getX(), (int)el.getY())) != null ||
-					super.pingMap(new Point((int)el.getX(), (int)el.getY())).equals("X")){
-					adj.remove(el);
+			System.out.println("All adj before pinging: " + adj.toString());
+			//Iterator<Point> i = adj.iterator(); i.hasNext();
+			//for (int i = 0; i < adj.size(); i++) {
+			Iterator<Point> i = adj.iterator();
+			while (i.hasNext()) {
+				//Point el = adj.get(i);
+				Point el = i.next();
+				if (super.pingMap(new Point((int)el.getX(), (int)el.getY())) == null) {
+					System.out.println(el.toString());
+					//adj.remove(el);
+					//i--;
+					i.remove();
+				}
+				else if (super.pingMap( new Point( (int)el.getX(), (int)el.getY() ) ) .equals("X")){
+					System.out.println(el.toString());
+					//adj.remove(el);
+					//i--;
+					i.remove();
 				}
 			} //Allowable adjacents fully generated
-			
+			System.out.println("Allowable adjacents fully generated.");
+			System.out.println("Allowable adjacents: " + adj.toString());
 			//Now, for each neighbor of adjacent
 			double tentative_gScore;
+			int counter = 0;
 			for (Point neighbor: adj) {
-				if (evaluated.contains(neighbor)) continue;
-				tentative_gScore = gScore.get(current) + current.distance(neighbor);
+				System.out.println(counter++);
+				if (evaluated.contains(neighbor)) {
+					System.out.println("Neighbor already evaluated!");
+					//continue;
+				}
+				//tentative_gScore = gScore.get(current) + current.distance(neighbor);
+				tentative_gScore = gScore.get(current) + heuristic(current, neighbor);
+				System.out.println("Tentative gScore of " + neighbor.toString() + ": "+tentative_gScore);
 				if (!notEvaluated.contains(neighbor)) {
+					System.out.println("Neighbor added to notEvaluated.");
 					notEvaluated.add(neighbor);
 				}
-				else if (tentative_gScore > gScore.get(neighbor)) {
-					continue;
+				if (tentative_gScore >= gScore.get(neighbor)) {
+					System.out.println("tentative_gScore >= neighbor gScore");
+					//continue;
 				}
 				cameFrom.put(neighbor, current);
 				gScore.put(neighbor, tentative_gScore);
-				fScore.put(neighbor, gScore.get(neighbor) + heuristic(current, neighbor));
+				fScore.put(neighbor, gScore.get(neighbor) + heuristic(neighbor, go));
+				System.out.println("fScore of neighbor: " + fScore.get(neighbor).toString());
 			}
+			System.out.println("Not Evaluated Nodes: " + notEvaluated.toString());
+			System.out.println("Evaluated Nodes: " + evaluated.toString());
 		}
-		//return failure;
-		return;
+		return new ArrayList<Point>();
 	}
-	public void reconstructPath(Point cameFrom, Point current) {
-		return;
+	public List<Point> reconstructPath(Map<Point, Point> cameFrom, Point current) {
+		List<Point> totalPath = new ArrayList<Point>();
+		totalPath.add(current);
+		while (cameFrom.keySet().contains(current)) {
+			current = cameFrom.get(current);
+			totalPath.add(current);
+		}
+		return totalPath;
 	}
 	
 	//Modified Manhattan distance allowing for diagonal
 	public Double heuristic(Point p, Point d) {
 		double dx = Math.abs(p.getX() - d.getX());
 		double dy = Math.abs(p.getY() - d.getY());
-		return dx + dy - Math.min(dx, dy);
+		//return dx + dy + (-1)*Math.min(dx, dy);
+		return Math.max(dx, dy);
 	}
 //	public Double distBetween(Point current, Point neighbor) {
 //		current.distance(neighbor);
@@ -125,7 +168,7 @@ public class RobotTravel extends Robot{
 //	}
 	//Taken from Stackoverflow: 
 	//http://stackoverflow.com/questions/1383797/java-hashmap-how-to-get-key-from-value/28415495#28415495
-	public static Object getKeyFromValue(Map hm, Object value) {
+	public static Object getKeyFromValue(Map<Point, Double> hm, Object value) {
         for (Object o : hm.keySet()) {
           if (hm.get(o).equals(value)) {
             return o;
@@ -136,56 +179,18 @@ public class RobotTravel extends Robot{
     
 }
 
-//Coordinate end = new Coordinate((int) destination.getX(), (int)destination.getY(), 0);
-//coordinates.add(end);
-//System.out.println(coordinates.element().toString());
-//for (Coordinate e : coordinates) {
-//	List<Coordinate> adj = new ArrayList<Coordinate>();
-//	Coordinate nw = new Coordinate(e.getX() - 1, e.getY() - 1, e.getCounter() + 1);
-//	Coordinate ne = new Coordinate(e.getX() - 1, e.getY() + 1, e.getCounter() + 1);
-//	Coordinate n = new Coordinate(e.getX() - 1, e.getY(), e.getCounter() + 1);
-//	Coordinate w = new Coordinate(e.getX(), e.getY() - 1, e.getCounter() + 1);
-//	Coordinate sw = new Coordinate(e.getX() + 1, e.getY() - 1, e.getCounter() + 1);
-//	Coordinate s = new Coordinate(e.getX() + 1, e.getY(), e.getCounter() + 1);
-//	Coordinate se = new Coordinate(e.getX() + 1, e.getY() + 1, e.getCounter() + 1);
-//	Coordinate ea = new Coordinate(e.getX(), e.getY() + 1, e.getCounter() + 1);
-//	if (super.pingMap(new Point(nw.getX(), nw.getY())) != null) {
-//		adj.add(nw);
-//	}
-//	if (super.pingMap(new Point(ne.getX(), ne.getY())) != null) {
-//		adj.add(ne);
-//	}
-//	if (super.pingMap(new Point(n.getX(), n.getY())) != null) {
-//		adj.add(n);
-//	}
-//	if (super.pingMap(new Point(w.getX(), w.getY())) != null) {
-//		adj.add(w);
-//	}
-//	if (super.pingMap(new Point(sw.getX(), sw.getY())) != null) {
-//		adj.add(sw);
-//	}
-//	if (super.pingMap(new Point(s.getX(), s.getY())) != null) {
-//		adj.add(s);
-//	}
-//	if (super.pingMap(new Point(se.getX(), se.getY())) != null) {
-//		adj.add(se);
-//	}
-//	if (super.pingMap(new Point(ea.getX(), ea.getY())) != null) {
-//		adj.add(ea);
-//	}
-//	for (Coordinate el : adj) {
-//		if (super.pingMap(new Point(el.getX(), el.getY())).equals("X")){
-//			adj.remove(el);
-//		}
-//		for (Coordinate a: coordinates) {
-//			if (a.getX() == el.getX() && a.getY() == el.getY()
-//					&& a.getCounter() > el.getCounter()) {
-//				adj.remove(el);
-//				break;
-//			}
-//		}
-//	}
-//	for (Coordinate el : adj) {
-//		coordinates.add(el);
-//	}
+//public int getCols() {
+//return cols;
+//}
+//
+//public void setCols(int cols) {
+//this.cols = cols;
+//}
+//
+//public int getRows() {
+//return rows;
+//}
+//
+//public void setRows(int rows) {
+//this.rows = rows;
 //}
