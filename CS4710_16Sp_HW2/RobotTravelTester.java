@@ -1,5 +1,5 @@
 import world.*;
-
+// Please read the AStar and the getKeyFromValue methods.
 public class RobotTravelTester {
 
 	public static void main(String[] args) {
@@ -11,7 +11,7 @@ public class RobotTravelTester {
 			* Second parameter is whether or not the world is uncertain.
 			*/
 			boolean uncertainty = false;
-			World myWorld = new World ("TestCases/myInputFile1.txt", uncertainty );
+			World myWorld = new World ("TestCases/myInputFile2.txt", uncertainty );
 			
 			System.out.println("World Created");
 			/* Create a robot that will run around in myWorld */
