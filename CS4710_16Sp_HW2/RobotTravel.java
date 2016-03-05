@@ -5,6 +5,7 @@ import world.*;
 // Please read the AStar and the getKeyFromValue methods.
 
 public class RobotTravel extends Robot{
+	// Fields
 	Point start;
 	Point destination;
 	boolean uncertainty;
@@ -13,6 +14,8 @@ public class RobotTravel extends Robot{
 	Map<Point, Point> cameFrom;
 	static List<Point> evaluated;
 	static List<Point> notEvaluated;
+
+	// Constructor
 	public RobotTravel(Point st, Point dest, boolean u, int c, int r) {
 		//We'll the info for start, destination, uncertainty, columns, and rows to generate a path.
 		super();
@@ -128,8 +131,6 @@ public class RobotTravel extends Robot{
 			adj.add(nw); adj.add(ne); adj.add(n); adj.add(w);
 			adj.add(sw); adj.add(s); adj.add(se); adj.add(ea);
 			System.out.println("All adj before pinging: " + adj.toString());
-			//Iterator<Point> i = adj.iterator(); i.hasNext();
-			//for (int i = 0; i < adj.size(); i++) {
 
 			// Remove the nodes that return null upon pinging--- Those are outside the boundaries of the map.
 			Iterator<Point> i = adj.iterator();
@@ -139,12 +140,6 @@ public class RobotTravel extends Robot{
 					System.out.println(el.toString());
 					i.remove();
 				}
-
-				// An option to remove the nodes that are walls. This has been buggy.
-//				else if (super.pingMap( new Point( (int)el.getX(), (int)el.getY() ) ) .equals("X")){
-//					System.out.println(el.toString());
-//					i.remove();
-//				}
 			} //Allowable adjacents fully generated
 			System.out.println("Allowable adjacents fully generated.");
 			System.out.println("Allowable adjacents: " + adj.toString());
@@ -158,79 +153,52 @@ public class RobotTravel extends Robot{
 
 				// Here we tried multiple ways of writing the algorithm, and multiple ways of dealing with the walls.
 
-				//if(!super.pingMap(neighbor).equals("X")){
-					//Pseudocode from wikipedia:
-					// The distance from start to goal passing through current and the neighbor.
-            		//tentative_gScore := gScore[current] + dist_between(current, neighbor)
+				if (evaluated.contains(neighbor)) {
+					System.out.println("Neighbor already evaluated!");
+					continue;
+				}
+				//Pseudocode from wikipedia:
+				// The distance from start to goal passing through current and the neighbor.
+        		//tentative_gScore := gScore[current] + dist_between(current, neighbor)
 
-					//Based this section on https://en.wikipedia.org/wiki/Talk:A*_search_algorithm#Dubious
-					tentative_gScore = gScore.get(current) + manhattan(current, neighbor);
+				//Based this section on https://en.wikipedia.org/wiki/Talk:A*_search_algorithm#Dubious
+				//tentative_gScore = gScore.get(current) + manhattan(current, neighbor);
 
-					if (notEvaluated.contains(neighbor) && tentative_gScore < gScore.get(neighbor)) {
-						notEvaluated.remove(neighbor);
-						//if(!evaluated.contains(neighbor)) evaluated.add(neighbor);
-						continue;
-					}
-					if (evaluated.contains(neighbor) && tentative_gScore < gScore.get(neighbor)) {
-						evaluated.remove(neighbor);
-						//if(!notEvaluated.contains(neighbor)) notEvaluated.add(neighbor);
-						continue;
-					}
-
-					if (!notEvaluated.contains(neighbor) && !evaluated.contains(neighbor) && !super.pingMap(neighbor).equals("X")) {
-						// https://en.wikipedia.org/wiki/A*_search_algorithm
-						// This path is the best until now. Record it!
-						System.out.println("Being run");
-						
-						//tentative_gScore = gScore.get(current) + heuristic(current, neighbor);
-						cameFrom.put(neighbor, current);
-						gScore.put(neighbor, tentative_gScore);
-						double h = gScore.get(neighbor) + heuristic(neighbor, go);
-						//Tiebreaking. This reduces this current path's fScore, because it's the most efficient thus far.
-						while (fScore.values().contains(h))
-							h *= 0.999;
-						fScore.put(neighbor, gScore.get(neighbor) + heuristic(neighbor, go));
-						notEvaluated.add(neighbor);
-					}
-//					else {
-//						notEvaluated.add(neighbor);
-//					}
-				//}
-
-
-				// if (evaluated.contains(neighbor)) {
-				// 	System.out.println("Neighbor already evaluated!");
-				// 	continue;
-				// }
-				// //tentative_gScore = gScore.get(current) + current.distance(neighbor);
-				// tentative_gScore = gScore.get(current) + heuristic(current, neighbor);
-				// //tentative_gScore = gScore.get(current) + manhattan(current, neighbor);
-				// System.out.println("Tentative gScore of " + neighbor.toString() + ": "+tentative_gScore);
-				// if (!notEvaluated.contains(neighbor)) {
-				// 	System.out.println("Neighbor added to notEvaluated.");
-				// 	notEvaluated.add(neighbor);
-				// }
-				// else if (tentative_gScore >= gScore.get(neighbor)) {
-				// 	System.out.println("tentative_gScore >= neighbor gScore");
-				// 	continue;
-				// }
-				// if (!super.pingMap(neighbor).equals("X")) {
-				// 	if (!notEvaluated.contains(neighbor)) notEvaluated.add(neighbor);
-				// 	//tentative_gScore = gScore.get(current) + heuristic(current, neighbor);
-				// 	cameFrom.put(neighbor, current);
-				// 	//cameFrom.put(current, neighbor);
-				// 	gScore.put(neighbor, tentative_gScore);
-				// 	double h = gScore.get(neighbor) + heuristic(neighbor, go);
-				// 	//Tiebreaking. This reduces this current path's fScore, because it's the most efficient thus far.
-				// 	while (fScore.values().contains(h))
-				// 		h *= 0.999;
-				// 	fScore.put(neighbor, h);
+				//The more we weight pure manhattan and less we weight the modified manhattan here, the more our path tends to be straight.
+				//But we've noticed that weighting towards manhattan increases the number of pings.
+				//This becomes a matter of optimizing between number of pings and how straight/natural looking you want the path to be!
+				//It really doesn't affect the number of moves much.
+				//tentative_gScore = gScore.get(current) + current.distance(neighbor);
+				tentative_gScore = gScore.get(current) + 0.3*heuristic(current, neighbor) + 0.7*manhattan(current, neighbor);
+				//tentative_gScore = gScore.get(current) + manhattan(current, neighbor);
+				System.out.println("Tentative gScore of " + neighbor.toString() + ": "+tentative_gScore);
+				if (!notEvaluated.contains(neighbor)) {
+					System.out.println("Neighbor added to notEvaluated.");
+					notEvaluated.add(neighbor);
+				}
+				else if (tentative_gScore >= gScore.get(neighbor)) {
+					System.out.println("tentative_gScore >= neighbor gScore");
+					continue;
+				}
+				if (!super.pingMap(neighbor).equals("X")) {
+					if (!notEvaluated.contains(neighbor)) notEvaluated.add(neighbor);
+					//tentative_gScore = gScore.get(current) + heuristic(current, neighbor);
+					cameFrom.put(neighbor, current);
+					//cameFrom.put(current, neighbor);
+					gScore.put(neighbor, tentative_gScore);
+					double h = gScore.get(neighbor) + heuristic(neighbor, go);
+					//Tiebreaking. This reduces this current path's fScore, because it's the most efficient thus far.
+					while (fScore.values().contains(h))
+						h *= 0.999;
+					fScore.put(neighbor, h);
 					
-				// 	System.out.println("fScore of neighbor: " + fScore.get(neighbor).toString());
-				// }
+					System.out.println("fScore of neighbor: " + fScore.get(neighbor).toString());
+				}
 			}
 			System.out.println("Not Evaluated Nodes: " + notEvaluated.toString());
 			System.out.println("Evaluated Nodes: " + evaluated.toString());
+
+			fScore.remove(current);
 		}
 		System.out.println("While loop exited, with failure.");
 
@@ -252,7 +220,7 @@ public class RobotTravel extends Robot{
 		return totalPath;
 	}
 	
-	//Modified Manhattan distance allowing for diagonal
+	// Modified Manhattan distance allowing for diagonal, where the cost of moving diagonally is the same as moving straight.
 	// http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
 	public Double heuristic(Point p, Point d) {
 		double dx = Math.abs(p.getX() - d.getX());
@@ -261,25 +229,21 @@ public class RobotTravel extends Robot{
 		//return Math.max(dx, dy);
 		//return p.distance(d);
 	}
-	//Pure Manhattan distance
+
+	//Pure Manhattan distance.
 	public Double manhattan(Point p, Point d) {
 		double dx = Math.abs(p.getX() - d.getX());
 		double dy = Math.abs(p.getY() - d.getY());
 		return dx + dy;
-		//return Math.max(dx, dy);
-		//return p.distance(d);
 	}
 
 	//Adapted from Stackoverflow: 
 	//http://stackoverflow.com/questions/1383797/java-hashmap-how-to-get-key-from-value/28415495#28415495
-	static Object lastObject;
 	// Look in a map and find a Point based on the Double value. In this case, that means we look through fScore table for a certain fScore
 	// and find the point associated.
 	public static Object getKeyFromValue(Map<Point, Double> hm, Object value) {
         for (Object o : hm.keySet()) {
           if (hm.get(o).equals(value)) {
-        	  //if (o != null) lastObject = o;
-
           	  // So, here's some of the problem: We originially were stuck in an infinite loop because getKeyFromValue kept on
           	  // finding the nodes that had already been evaluated. We added this if statement to prevent that loop, and test case 1 worked!
 
@@ -288,16 +252,11 @@ public class RobotTravel extends Robot{
 
           	  // Have tried several different ways of doing the A* algorithm, to no avail.
         	  if (!evaluated.contains(o)) {
-        	  //if(notEvaluated.contains(o))
-        		  //evaluated.add((Point) o);
-        	  	  //if (notEvaluated.contains(o)) notEvaluated.remove((Point) o);
-        	  	  
         		  return o;
         	  }
 
           }
         }
-        //return lastObject;
         return null;
     }
     
@@ -324,26 +283,45 @@ public class RobotTravel extends Robot{
 //this.rows = rows;
 //}
 
-//tentative_gScore = gScore.get(current) + heuristic(current, neighbor);
-//if (notEvaluated.contains(neighbor) && tentative_gScore < gScore.get(neighbor)) {
-//	notEvaluated.remove(neighbor);
-//	if(!evaluated.contains(neighbor)) evaluated.add(neighbor);
-//}
-//if (evaluated.contains(neighbor) && tentative_gScore < gScore.get(neighbor)) {
-//	evaluated.remove(neighbor);
-//}
-//if (!notEvaluated.contains(neighbor) && !evaluated.contains(neighbor)) {
-//	cameFrom.put(neighbor, current);
-//	gScore.put(neighbor, tentative_gScore);
-//	fScore.put(neighbor, gScore.get(neighbor) + heuristic(neighbor, go));
-//	notEvaluated.add(neighbor);
-//	
-//}
-//if (!notEvaluated.contains(neighbor) && !evaluated.contains(neighbor)) {
-//	System.out.println("Being run");
-//	notEvaluated.add(neighbor);
-//	tentative_gScore = gScore.get(current) + heuristic(current, neighbor);
-//	cameFrom.put(neighbor, current);
-//	gScore.put(neighbor, tentative_gScore);
-//	fScore.put(neighbor, gScore.get(neighbor) + heuristic(neighbor, go));					
-//}
+
+				//Pseudocode from wikipedia:
+				// The distance from start to goal passing through current and the neighbor.
+        		//tentative_gScore := gScore[current] + dist_between(current, neighbor)
+
+				//Based this section on https://en.wikipedia.org/wiki/Talk:A*_search_algorithm#Dubious
+				//tentative_gScore = gScore.get(current) + manhattan(current, neighbor);
+
+				//The more we weight pure manhattan and less we weight the modified manhattan here, the more our path tends to be straight.
+				//But we've noticed that weighting towards manhattan increases the number of pings.
+				//This becomes a matter of optimizing between number of pings and how straight/natural looking you want the path to be!
+				//It really doesn't affect the number of moves much.
+				// tentative_gScore = gScore.get(current) + 0.2*heuristic(current, neighbor) + 0.8*manhattan(current, neighbor);
+				// if (notEvaluated.contains(neighbor) && tentative_gScore < gScore.get(neighbor)) {
+				// 	notEvaluated.remove(neighbor);
+				// 	//if(!evaluated.contains(neighbor)) evaluated.add(neighbor);
+				// 	continue;
+				// }
+				// else if (evaluated.contains(neighbor) && tentative_gScore < gScore.get(neighbor)) {
+				// 	evaluated.remove(neighbor);
+				// 	//if(!notEvaluated.contains(neighbor)) notEvaluated.add(neighbor);
+				// 	continue;
+				// }
+
+				// else if (!notEvaluated.contains(neighbor) && !evaluated.contains(neighbor) && !super.pingMap(neighbor).equals("X")) {
+				// 	// https://en.wikipedia.org/wiki/A*_search_algorithm
+				// 	// This path is the best until now. Record it!
+				// 	System.out.println("Being run");
+					
+				// 	//tentative_gScore = gScore.get(current) + heuristic(current, neighbor);
+				// 	cameFrom.put(neighbor, current);
+				// 	gScore.put(neighbor, tentative_gScore);
+				// 	double h = gScore.get(neighbor) + heuristic(neighbor, go);
+				// 	//Tiebreaking. This reduces this current path's fScore, because it's the most efficient thus far. Helps differientiate it.
+				// 	while (fScore.values().contains(h))
+				// 		h *= 0.999;
+				// 	fScore.put(neighbor, gScore.get(neighbor) + heuristic(neighbor, go));
+				// 	notEvaluated.add(neighbor);
+				// }
+				// else {
+				// 	notEvaluated.add(neighbor);
+				// }
