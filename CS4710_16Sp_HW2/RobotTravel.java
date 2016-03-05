@@ -184,7 +184,7 @@ public class RobotTravel extends Robot{
 				}
 				if (!super.pingMap(neighbor).equals("X")) {
 					if (!notEvaluated.contains(neighbor)) notEvaluated.add(neighbor);
-					tentative_gScore = gScore.get(current) + manhattan(current, neighbor);
+					//tentative_gScore = gScore.get(current) + heuristic(current, neighbor);
 					cameFrom.put(neighbor, current);
 					//cameFrom.put(current, neighbor);
 					gScore.put(neighbor, tentative_gScore);

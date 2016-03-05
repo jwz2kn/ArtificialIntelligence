@@ -21,7 +21,7 @@ public class RobotTravelTester {
 			myRobot.addToWorld (myWorld);
 //			myRobot.setCols(myWorld.numCols());
 //			myRobot.setRows(myWorld.numRows());
-			myWorld.createGUI(700, 500, 1000);
+			//myWorld.createGUI(350, 250, 1000);
 			// Tell the robot to travel to the destination.
 			// You will be implementing this method yourself !
 			myRobot.travelToDestination();
