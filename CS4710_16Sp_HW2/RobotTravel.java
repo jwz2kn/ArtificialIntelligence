@@ -30,7 +30,10 @@ public class RobotTravel extends Robot{
 	public void travelToDestination() {
 		if (!uncertainty) {
 			//Generate a path as a list of points to travel to.
+			long startTime = System.nanoTime();
 			List<Point> path = AStar(start, destination);
+			long estimatedTime = System.nanoTime() - startTime;
+			System.out.println("Time it took to generate path: " + Math.pow(10,-9)*estimatedTime + " s");
 			System.out.println("Path: " + path.toString());
 			if (!path.isEmpty() && path != null) {
 				for(int i = 0; i < path.size(); i++) {
@@ -42,7 +45,7 @@ public class RobotTravel extends Robot{
 			
 		}
 		else {
-			
+			DStarLite(start, destination);
 		}
 	}
 	
@@ -136,7 +139,8 @@ public class RobotTravel extends Robot{
 			Iterator<Point> i = adj.iterator();
 			while (i.hasNext()) {
 				Point el = i.next();
-				if (super.pingMap(new Point((int)el.getX(), (int)el.getY())) == null) {
+				//if (super.pingMap(new Point((int)el.getX(), (int)el.getY())) == null) {
+				if (el.getX() >= rows || el.getY() >= cols || el.getX() < 0 || el.getY() < 0) {
 					System.out.println(el.toString());
 					i.remove();
 				}
@@ -259,6 +263,26 @@ public class RobotTravel extends Robot{
         }
         return null;
     }
+
+    public void DStarLite(Point st, Point go) {
+    	return;
+	}
+
+	public Vector<Double> rhs() {
+		return null;
+	}
+
+	//https://en.wikipedia.org/wiki/Iterative_deepening_A*
+	private Point current;
+	private Map<Point, Double> g;
+	private Map<Point, Double> f;
+	private List<Point> successors = new ArrayList<Point>();
+	private double bound;
+
+	public void idaStar(Point st) {
+		//bound = heuristic(st);
+
+	}
     
 }
 
