@@ -268,14 +268,43 @@ public class RobotTravel extends Robot{
     	return;
 	}
 
-	public Vector<Double> rhs() {
-		return null;
+	public Double rhs(Point current) {
+		double min = Double.POSITIVE_INFINITY;
+		if (current.getX() == destination.getX() && current.getY() == destination.getY()) min = 0;		
+		else {
+			List<Point> pred = new ArrayList<Point>();
+			Point nw = new Point((int) current.getX() - 1, (int) current.getY() - 1);
+			Point ne = new Point((int)current.getX() - 1, (int)current.getY() + 1);
+			Point n = new Point((int)current.getX() - 1, (int)current.getY());
+			Point w = new Point((int)current.getX(), (int)current.getY() - 1);
+			Point sw = new Point((int)current.getX() + 1, (int)current.getY() - 1);
+			Point s = new Point((int)current.getX() + 1, (int)current.getY());
+			Point se = new Point((int)current.getX() + 1, (int)current.getY() + 1);
+			Point ea = new Point((int)current.getX(), (int)current.getY() + 1);
+			pred.add(nw); pred.add(ne); pred.add(n); pred.add(w);
+			pred.add(sw); pred.add(s); pred.add(se); pred.add(ea);
+			// Remove the nodes that return null upon pinging--- Those are outside the boundaries of the map.
+			Iterator<Point> i = pred.iterator();
+			while (i.hasNext()) {
+				Point el = i.next();
+				//if (super.pingMap(new Point((int)el.getX(), (int)el.getY())) == null) {
+				if (el.getX() >= rows || el.getY() >= cols || el.getX() < 0 || el.getY() < 0) {
+					System.out.println(el.toString());
+					i.remove();
+				}
+			} //Allowable adjacents fully generated
+			for (Point s_prime : pred) {
+				if (g.get(s_prime) + heuristic(s_prime, current) < min) min = g.get(s_prime) + heuristic(s_prime, current);
+			}
+		}
+		return min;
 	}
 
 	//https://en.wikipedia.org/wiki/Iterative_deepening_A*
-	private Point current;
+//	private Point current;
 	private Map<Point, Double> g;
 	private Map<Point, Double> f;
+
 	private List<Point> successors = new ArrayList<Point>();
 	private double bound;
 
