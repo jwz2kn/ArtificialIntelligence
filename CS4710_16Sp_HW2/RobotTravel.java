@@ -300,6 +300,13 @@ public class RobotTravel extends Robot{
 		return min;
 	}
 
+	public Vector<Double> calcKey(Point current) {
+		Vector<Double> result = new Vector<Double>();
+		result.add(Math.min(g.get(current), rhs(current) + heuristic(current, destination)));
+		result.add(Math.min(g.get(current), rhs(current)));
+		return result;
+	}
+
 	//https://en.wikipedia.org/wiki/Iterative_deepening_A*
 //	private Point current;
 	private Map<Point, Double> g;
