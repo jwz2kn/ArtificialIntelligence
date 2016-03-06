@@ -264,8 +264,16 @@ public class RobotTravel extends Robot{
         return null;
     }
 
+    private Map<Point, Double> g;
+	private Map<Point, Double> f;
+	private Map<Point, Vector<Double>> U;
+
     public void DStarLite(Point st, Point go) {
     	return;
+	}
+
+	public void initialize() {
+
 	}
 
 	public Double rhs(Point current) {
@@ -307,18 +315,17 @@ public class RobotTravel extends Robot{
 		return result;
 	}
 
-	//https://en.wikipedia.org/wiki/Iterative_deepening_A*
-//	private Point current;
-	private Map<Point, Double> g;
-	private Map<Point, Double> f;
+	// https://en.wikipedia.org/wiki/Iterative_deepening_A*
+	//	private Point current;
 
-	private List<Point> successors = new ArrayList<Point>();
-	private double bound;
 
-	public void idaStar(Point st) {
-		//bound = heuristic(st);
+	// private List<Point> successors = new ArrayList<Point>();
+	// private double bound;
 
-	}
+	// public void idaStar(Point st) {
+	// 	//bound = heuristic(st);
+
+	// }
     
 }
 
