@@ -267,16 +267,25 @@ public class RobotTravel extends Robot{
     private Map<Point, Double> g;
 	private Map<Point, Double> f;
 	private Map<Point, Vector<Double>> U;
+    private Map<Point, Double> rhs;
 
     public void DStarLite(Point st, Point go) {
     	return;
 	}
 
 	public void initialize() {
-
+	    U = new HashMap<Point, Vector<Double>>();
+	    for (int i = 0; i < rows; i++) { //x axis
+		for (int j = 0; j < cols; j++) { //y axis
+		    g.put(new Point(i, j), Double.POSITIVE_INFINITY);
+		    rhs.put(new Point(i, j), Double.POSITIVE_INFINITY);
+		}
+	    }
+	    rhs.put(destination, 0.0);
+	    U.put(destination, calcKey(destination));
 	}
 
-	public Double rhs(Point current) {
+	public Double calcRhs(Point current) {
 		double min = Double.POSITIVE_INFINITY;
 		if (current.getX() == destination.getX() && current.getY() == destination.getY()) min = 0;		
 		else {
@@ -310,8 +319,8 @@ public class RobotTravel extends Robot{
 
 	public Vector<Double> calcKey(Point current) {
 		Vector<Double> result = new Vector<Double>();
-		result.add(Math.min(g.get(current), rhs(current) + heuristic(current, destination)));
-		result.add(Math.min(g.get(current), rhs(current)));
+		result.add(Math.min(g.get(current), calcRhs(current) + heuristic(current, destination)));
+		result.add(Math.min(g.get(current), calcRhs(current)));
 		return result;
 	}
 
