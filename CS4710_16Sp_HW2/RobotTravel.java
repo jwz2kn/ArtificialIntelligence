@@ -122,29 +122,30 @@ public class RobotTravel extends Robot{
 			System.out.println("Current: " + current.toString());
 			
 			//Generate adjacent nodes of current node.
-			List<Point> adj = new ArrayList<Point>();
-			Point nw = new Point((int) current.getX() - 1, (int) current.getY() - 1);
-			Point ne = new Point((int)current.getX() - 1, (int)current.getY() + 1);
-			Point n = new Point((int)current.getX() - 1, (int)current.getY());
-			Point w = new Point((int)current.getX(), (int)current.getY() - 1);
-			Point sw = new Point((int)current.getX() + 1, (int)current.getY() - 1);
-			Point s = new Point((int)current.getX() + 1, (int)current.getY());
-			Point se = new Point((int)current.getX() + 1, (int)current.getY() + 1);
-			Point ea = new Point((int)current.getX(), (int)current.getY() + 1);
-			adj.add(nw); adj.add(ne); adj.add(n); adj.add(w);
-			adj.add(sw); adj.add(s); adj.add(se); adj.add(ea);
-			System.out.println("All adj before pinging: " + adj.toString());
+			List<Point> adj = generateAdjacents(current);
+			// List<Point> adj = new ArrayList<Point>();
+			// Point nw = new Point((int) current.getX() - 1, (int) current.getY() - 1);
+			// Point ne = new Point((int)current.getX() - 1, (int)current.getY() + 1);
+			// Point n = new Point((int)current.getX() - 1, (int)current.getY());
+			// Point w = new Point((int)current.getX(), (int)current.getY() - 1);
+			// Point sw = new Point((int)current.getX() + 1, (int)current.getY() - 1);
+			// Point s = new Point((int)current.getX() + 1, (int)current.getY());
+			// Point se = new Point((int)current.getX() + 1, (int)current.getY() + 1);
+			// Point ea = new Point((int)current.getX(), (int)current.getY() + 1);
+			// adj.add(nw); adj.add(ne); adj.add(n); adj.add(w);
+			// adj.add(sw); adj.add(s); adj.add(se); adj.add(ea);
+			// System.out.println("All adj before pinging: " + adj.toString());
 
-			// Remove the nodes that return null upon pinging--- Those are outside the boundaries of the map.
-			Iterator<Point> i = adj.iterator();
-			while (i.hasNext()) {
-				Point el = i.next();
-				//if (super.pingMap(new Point((int)el.getX(), (int)el.getY())) == null) {
-				if (el.getX() >= rows || el.getY() >= cols || el.getX() < 0 || el.getY() < 0) {
-					System.out.println(el.toString());
-					i.remove();
-				}
-			} //Allowable adjacents fully generated
+			// // Remove the nodes that return null upon pinging--- Those are outside the boundaries of the map.
+			// Iterator<Point> i = adj.iterator();
+			// while (i.hasNext()) {
+			// 	Point el = i.next();
+			// 	//if (super.pingMap(new Point((int)el.getX(), (int)el.getY())) == null) {
+			// 	if (el.getX() >= rows || el.getY() >= cols || el.getX() < 0 || el.getY() < 0) {
+			// 		System.out.println(el.toString());
+			// 		i.remove();
+			// 	}
+			// } //Allowable adjacents fully generated
 			System.out.println("Allowable adjacents fully generated.");
 			System.out.println("Allowable adjacents: " + adj.toString());
 
@@ -208,6 +209,33 @@ public class RobotTravel extends Robot{
 
 		// No path generated, return empty list.
 		return new ArrayList<Point>();
+	}
+
+	public List<Point> generateAdjacents(Point current) {
+		List<Point> adj = new ArrayList<Point>();
+		Point nw = new Point((int) current.getX() - 1, (int) current.getY() - 1);
+		Point ne = new Point((int)current.getX() - 1, (int)current.getY() + 1);
+		Point n = new Point((int)current.getX() - 1, (int)current.getY());
+		Point w = new Point((int)current.getX(), (int)current.getY() - 1);
+		Point sw = new Point((int)current.getX() + 1, (int)current.getY() - 1);
+		Point s = new Point((int)current.getX() + 1, (int)current.getY());
+		Point se = new Point((int)current.getX() + 1, (int)current.getY() + 1);
+		Point ea = new Point((int)current.getX(), (int)current.getY() + 1);
+		adj.add(nw); adj.add(ne); adj.add(n); adj.add(w);
+		adj.add(sw); adj.add(s); adj.add(se); adj.add(ea);
+		System.out.println("All adj before pinging: " + adj.toString());
+
+		// Remove the nodes that return null upon pinging--- Those are outside the boundaries of the map.
+		Iterator<Point> i = adj.iterator();
+		while (i.hasNext()) {
+			Point el = i.next();
+			//if (super.pingMap(new Point((int)el.getX(), (int)el.getY())) == null) {
+			if (el.getX() >= rows || el.getY() >= cols || el.getX() < 0 || el.getY() < 0) {
+				System.out.println(el.toString());
+				i.remove();
+			}
+		} //Allowable adjacents fully generated
+		return adj;
 	}
 
 	//Take a Map of Point to Point (which theoretically would include all the mappings of node to node for correct path)
@@ -285,31 +313,24 @@ public class RobotTravel extends Robot{
 	    U.put(destination, calcKey(destination));
 	}
 
+	public void updateVertex(Point current) {
+		if (!(current.getX() == destination.getX() && current.getY() == destination.getY())) {
+			double min = Double.POSITIVE_INFINITY;
+			List<Point> succ = generateAdjacents(current);
+			for (Point s_prime : succ) {
+				if (g.get(s_prime) + heuristic(current, s_prime) < min) min = g.get(s_prime) + heuristic(current, s_prime);
+			}
+			rhs.put(current, min);
+		}
+		if (U.keySet().contains(current)) U.remove(current);
+		if (g.get(current) != rhs.get(current)) U.put(current, calcKey(current));
+	}
+
 	public Double calcRhs(Point current) {
 		double min = Double.POSITIVE_INFINITY;
 		if (current.getX() == destination.getX() && current.getY() == destination.getY()) min = 0;		
 		else {
-			List<Point> pred = new ArrayList<Point>();
-			Point nw = new Point((int) current.getX() - 1, (int) current.getY() - 1);
-			Point ne = new Point((int)current.getX() - 1, (int)current.getY() + 1);
-			Point n = new Point((int)current.getX() - 1, (int)current.getY());
-			Point w = new Point((int)current.getX(), (int)current.getY() - 1);
-			Point sw = new Point((int)current.getX() + 1, (int)current.getY() - 1);
-			Point s = new Point((int)current.getX() + 1, (int)current.getY());
-			Point se = new Point((int)current.getX() + 1, (int)current.getY() + 1);
-			Point ea = new Point((int)current.getX(), (int)current.getY() + 1);
-			pred.add(nw); pred.add(ne); pred.add(n); pred.add(w);
-			pred.add(sw); pred.add(s); pred.add(se); pred.add(ea);
-			// Remove the nodes that return null upon pinging--- Those are outside the boundaries of the map.
-			Iterator<Point> i = pred.iterator();
-			while (i.hasNext()) {
-				Point el = i.next();
-				//if (super.pingMap(new Point((int)el.getX(), (int)el.getY())) == null) {
-				if (el.getX() >= rows || el.getY() >= cols || el.getX() < 0 || el.getY() < 0) {
-					System.out.println(el.toString());
-					i.remove();
-				}
-			} //Allowable adjacents fully generated
+			List<Point> pred = generateAdjacents(current);
 			for (Point s_prime : pred) {
 				if (g.get(s_prime) + heuristic(s_prime, current) < min) min = g.get(s_prime) + heuristic(s_prime, current);
 			}
