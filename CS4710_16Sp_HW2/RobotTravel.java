@@ -45,7 +45,7 @@ public class RobotTravel extends Robot{
 			
 		}
 		else {
-			DStarLite(start, destination);
+			DStarLite();
 		}
 	}
 	
@@ -211,6 +211,7 @@ public class RobotTravel extends Robot{
 		return new ArrayList<Point>();
 	}
 
+	//Generate adjacent points--- Doesn't remove walls, but does remove walls.
 	public List<Point> generateAdjacents(Point current) {
 		List<Point> adj = new ArrayList<Point>();
 		Point nw = new Point((int) current.getX() - 1, (int) current.getY() - 1);
@@ -297,7 +298,23 @@ public class RobotTravel extends Robot{
 	private Map<Point, Vector<Double>> U;
     private Map<Point, Double> rhs;
 
-    public void DStarLite(Point st, Point go) {
+    public void DStarLite() {
+    	initialize();
+    	computeShortestPath();
+    	while(start.getX() != destination.getX() || start.getY() != destination.getY()) {
+    		List<Point> succ = generateAdjacents(start);
+    		double minOfSucc = Double.POSITIVE_INFINITY;
+    		for (Point s: succ) {
+    			if (heuristic(start, s) + g.get(s) < minOfSucc) {
+    				minOfSucc = heuristic(start, s) + g.get(s);
+    				start = s;
+    			}
+    		}
+    		Point movement = super.move(start);
+    		//Pseudocode:
+    		//if movement == start, then move did not work. Do not change edge costs.
+    		//else movement worked. Change edge costs by using a method that calls calcKey again on everything?
+    	}
     	return;
 	}
 
@@ -324,6 +341,47 @@ public class RobotTravel extends Robot{
 		}
 		if (U.keySet().contains(current)) U.remove(current);
 		if (g.get(current) != rhs.get(current)) U.put(current, calcKey(current));
+	}
+
+	public double findMinInVector(Map<Point, Vector<Double>> map) {
+		double min = Double.POSITIVE_INFINITY;
+        for (Vector<Double> v : map.values()) {
+          if (v.get(0) < min) {	
+        	min = v.get(0);
+          }
+        }
+		return min;
+	}
+
+	public Point getVectorKeyFromValue(Map<Point, Vector<Double>> hm, Object value) {
+        for (Point p : hm.keySet()) {
+          if (hm.get(p).get(0).equals(value)) {
+        		  return p;
+          }
+        }
+        return null;
+    }
+
+	public void computeShortestPath() {
+		while (U.get((Point) getVectorKeyFromValue(U, findMinInVector(U))).get(0) < calcKey(start).get(0) ||
+			rhs.get(start) != g.get(start)) {
+			Point current = (Point) getVectorKeyFromValue(U, findMinInVector(U));
+			if (g.get(current) > rhs.get(current)) {
+				g.put(current, rhs.get(current));
+				List<Point> pred = generateAdjacents(current);
+				for (Point s: pred) {
+					updateVertex(s);
+				}
+			}
+			else {
+				g.put(current, Double.POSITIVE_INFINITY);
+				List<Point> pred = generateAdjacents(current);
+				pred.add(current);
+				for (Point s: pred) {
+					updateVertex(s);
+				}				
+			}
+		}
 	}
 
 	public Double calcRhs(Point current) {
