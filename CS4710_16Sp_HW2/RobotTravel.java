@@ -123,29 +123,6 @@ public class RobotTravel extends Robot{
 			
 			//Generate adjacent nodes of current node.
 			List<Point> adj = generateAdjacents(current);
-			// List<Point> adj = new ArrayList<Point>();
-			// Point nw = new Point((int) current.getX() - 1, (int) current.getY() - 1);
-			// Point ne = new Point((int)current.getX() - 1, (int)current.getY() + 1);
-			// Point n = new Point((int)current.getX() - 1, (int)current.getY());
-			// Point w = new Point((int)current.getX(), (int)current.getY() - 1);
-			// Point sw = new Point((int)current.getX() + 1, (int)current.getY() - 1);
-			// Point s = new Point((int)current.getX() + 1, (int)current.getY());
-			// Point se = new Point((int)current.getX() + 1, (int)current.getY() + 1);
-			// Point ea = new Point((int)current.getX(), (int)current.getY() + 1);
-			// adj.add(nw); adj.add(ne); adj.add(n); adj.add(w);
-			// adj.add(sw); adj.add(s); adj.add(se); adj.add(ea);
-			// System.out.println("All adj before pinging: " + adj.toString());
-
-			// // Remove the nodes that return null upon pinging--- Those are outside the boundaries of the map.
-			// Iterator<Point> i = adj.iterator();
-			// while (i.hasNext()) {
-			// 	Point el = i.next();
-			// 	//if (super.pingMap(new Point((int)el.getX(), (int)el.getY())) == null) {
-			// 	if (el.getX() >= rows || el.getY() >= cols || el.getX() < 0 || el.getY() < 0) {
-			// 		System.out.println(el.toString());
-			// 		i.remove();
-			// 	}
-			// } //Allowable adjacents fully generated
 			System.out.println("Allowable adjacents fully generated.");
 			System.out.println("Allowable adjacents: " + adj.toString());
 
@@ -174,8 +151,12 @@ public class RobotTravel extends Robot{
 				//This becomes a matter of optimizing between number of pings and how straight/natural looking you want the path to be!
 				//It really doesn't affect the number of moves much.
 				//tentative_gScore = gScore.get(current) + current.distance(neighbor);
-				tentative_gScore = gScore.get(current) + 0.3*heuristic(current, neighbor) + 0.7*manhattan(current, neighbor);
+				//tentative_gScore = gScore.get(current) + 0.3*heuristic(current, neighbor) + 0.7*manhattan(current, neighbor);
 				//tentative_gScore = gScore.get(current) + manhattan(current, neighbor);
+
+				//Can also just change the heuristic such that diagonals are weighted more heavily. Which, again, the more you weight diagonals, 
+				//in a lot of cases, the more pings. In our case, we chose the cost of the diagonal to be 1.4 and cost of straight move to be 1.
+				tentative_gScore = gScore.get(current) + heuristic(current, neighbor);
 				System.out.println("Tentative gScore of " + neighbor.toString() + ": "+tentative_gScore);
 				if (!notEvaluated.contains(neighbor)) {
 					System.out.println("Neighbor added to notEvaluated.");
@@ -253,12 +234,13 @@ public class RobotTravel extends Robot{
 		return totalPath;
 	}
 	
-	// Modified Manhattan distance allowing for diagonal, where the cost of moving diagonally is the same as moving straight.
+	// Modified Manhattan distance allowing for diagonal, where the cost of moving diagonally is slightly greater than moving straight.
 	// http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
 	public Double heuristic(Point p, Point d) {
 		double dx = Math.abs(p.getX() - d.getX());
 		double dy = Math.abs(p.getY() - d.getY());
-		return dx + dy + (-1)*Math.min(dx, dy);
+		//return dx + dy + (-1)*Math.min(dx, dy);
+		return dx + dy + (-0.6)*Math.min(dx, dy);
 		//return Math.max(dx, dy);
 		//return p.distance(d);
 	}
@@ -310,21 +292,38 @@ public class RobotTravel extends Robot{
     				start = s;
     			}
     		}
+    		Point currentPosition = super.getPosition();
     		Point movement = super.move(start);
     		//Pseudocode:
-    		//if movement == start, then move did not work. Do not change edge costs.
-    		//else movement worked. Change edge costs by using a method that calls calcKey again on everything?
+    		//if movement == currentPosition, then move did not work. Change the edge cost of start to infinity.
+    		//else movement worked. edge costs might still change? in any case, do the necessary changes, scan graph for changes
+    		//No, it's if the cost of any node to another node has changed. IE, if move worked?
+    		boolean edgeCostChanged = true;
+    		Map<Vector<Point>, Double> changedEdgeCosts = new HashMap<Vector<Point>, Double>();
+    		if (edgeCostChanged) {
+    			for (Vector<Point> edge : changedEdgeCosts.keySet()) {
+    				// Update the edge cost = heuristic (first element, second element)
+    				// updateVertex(first element)? or updateVertex(currentPosition); 
+    			}
+    			for (Point s: U.keySet()) { // NOT SURE IF THIS WOULD WORK, DUE TO CONCURRENCY ISSUES
+    				U.put(s, calcKey(s));
+    			}
+    			computeShortestPath();
+    		}
     	}
     	return;
 	}
 
 	public void initialize() {
+		g = new HashMap<Point, Double>();
+		rhs = new HashMap<Point, Double>();
+		f = new HashMap<Point, Double>();
 	    U = new HashMap<Point, Vector<Double>>();
 	    for (int i = 0; i < rows; i++) { //x axis
-		for (int j = 0; j < cols; j++) { //y axis
-		    g.put(new Point(i, j), Double.POSITIVE_INFINITY);
-		    rhs.put(new Point(i, j), Double.POSITIVE_INFINITY);
-		}
+			for (int j = 0; j < cols; j++) { //y axis
+		    	g.put(new Point(i, j), Double.POSITIVE_INFINITY);
+		    	rhs.put(new Point(i, j), Double.POSITIVE_INFINITY);
+			}
 	    }
 	    rhs.put(destination, 0.0);
 	    U.put(destination, calcKey(destination));
