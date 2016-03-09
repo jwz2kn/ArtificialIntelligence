@@ -279,6 +279,7 @@ public class RobotTravel extends Robot{
 	private Map<Point, Double> f;
 	private Map<Point, Vector<Double>> U;
     private Map<Point, Double> rhs;
+    private Double[][] edgeC;
 
     public void DStarLite() {
     	initialize();
@@ -298,13 +299,16 @@ public class RobotTravel extends Robot{
     		//if movement == currentPosition, then move did not work. Change the edge cost of start to infinity.
     		//else movement worked. edge costs might still change? in any case, do the necessary changes, scan graph for changes
     		//No, it's if the cost of any node to another node has changed. IE, if move worked?
-    		boolean edgeCostChanged = true;
-    		Map<Vector<Point>, Double> changedEdgeCosts = new HashMap<Vector<Point>, Double>();
+		boolean edgeCostChanged = false;
+		if (movement.equals(currentPosition)) {
+		    edgeC[(int) currentPosition.getX()][(int) currentPosition.getY()] = Double.POSITIVE_INFINITY;
+		    edgeCostChanged = true;
+		}
+    
+    		// Map<Vector<Point>, Double> changedEdgeCosts = new HashMap<Vector<Point>, Double>();
     		if (edgeCostChanged) {
-    			for (Vector<Point> edge : changedEdgeCosts.keySet()) {
-    				// Update the edge cost = heuristic (first element, second element)
-    				// updateVertex(first element)? or updateVertex(currentPosition); 
-    			}
+		    // Update the edge cost = heuristic (first element, second element)
+		    updateVertex(movement); 
     			for (Point s: U.keySet()) { // NOT SURE IF THIS WOULD WORK, DUE TO CONCURRENCY ISSUES
     				U.put(s, calcKey(s));
     			}
@@ -314,33 +318,35 @@ public class RobotTravel extends Robot{
     	return;
 	}
 
-	public void initialize() {
-		g = new HashMap<Point, Double>();
-		rhs = new HashMap<Point, Double>();
-		f = new HashMap<Point, Double>();
-	    U = new HashMap<Point, Vector<Double>>();
-	    for (int i = 0; i < rows; i++) { //x axis
-			for (int j = 0; j < cols; j++) { //y axis
-		    	g.put(new Point(i, j), Double.POSITIVE_INFINITY);
-		    	rhs.put(new Point(i, j), Double.POSITIVE_INFINITY);
-			}
+    public void initialize() {
+	g = new HashMap<Point, Double>();
+	rhs = new HashMap<Point, Double>();
+	f = new HashMap<Point, Double>();
+	U = new HashMap<Point, Vector<Double>>();
+	edgeC = new Double[rows][cols];
+	for (int i = 0; i < rows; i++) { //x axis
+	    for (int j = 0; j < cols; j++) { //y axis
+		g.put(new Point(i, j), Double.POSITIVE_INFINITY);
+		rhs.put(new Point(i, j), Double.POSITIVE_INFINITY);
+		edgeC[i][j] = 1.0;
 	    }
-	    rhs.put(destination, 0.0);
-	    U.put(destination, calcKey(destination));
 	}
+	rhs.put(destination, 0.0);
+	U.put(destination, calcKey(destination));
+    }
 
-	public void updateVertex(Point current) {
-		if (!(current.getX() == destination.getX() && current.getY() == destination.getY())) {
-			double min = Double.POSITIVE_INFINITY;
-			List<Point> succ = generateAdjacents(current);
-			for (Point s_prime : succ) {
-				if (g.get(s_prime) + heuristic(current, s_prime) < min) min = g.get(s_prime) + heuristic(current, s_prime);
-			}
-			rhs.put(current, min);
-		}
-		if (U.keySet().contains(current)) U.remove(current);
-		if (g.get(current) != rhs.get(current)) U.put(current, calcKey(current));
+    public void updateVertex(Point current) {
+	if (!(current.getX() == destination.getX() && current.getY() == destination.getY())) {
+	    double min = Double.POSITIVE_INFINITY;
+	    List<Point> succ = generateAdjacents(current);
+	    for (Point s_prime : succ) {
+		if (g.get(s_prime) + heuristic(current, s_prime) < min) min = g.get(s_prime) + heuristic(current, s_prime);
+	    }
+	    rhs.put(current, min);
 	}
+	if (U.keySet().contains(current)) U.remove(current);
+	if (g.get(current) != rhs.get(current)) U.put(current, calcKey(current));
+    }
 
 	public double findMinInVector(Map<Point, Vector<Double>> map) {
 		double min = Double.POSITIVE_INFINITY;
