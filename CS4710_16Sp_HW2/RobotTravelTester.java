@@ -12,7 +12,7 @@ public class RobotTravelTester {
 			* Second parameter is whether or not the world is uncertain.
 			*/
 
-			boolean uncertainty = true;
+			boolean uncertainty =  false;
 			String input = "TestCases/myInputFile4.txt";
 
 			World myWorld = new World (input, uncertainty );

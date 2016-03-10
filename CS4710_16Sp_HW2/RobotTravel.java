@@ -205,7 +205,7 @@ public class RobotTravel extends Robot{
 		Point ea = new Point((int)current.getX(), (int)current.getY() + 1);
 		adj.add(nw); adj.add(ne); adj.add(n); adj.add(w);
 		adj.add(sw); adj.add(s); adj.add(se); adj.add(ea);
-		System.out.println("All adj before pinging: " + adj.toString());
+		System.out.println("All adj before removing invalids: " + adj.toString());
 
 		// Remove the nodes that return null upon pinging--- Those are outside the boundaries of the map.
 		Iterator<Point> i = adj.iterator();
@@ -284,7 +284,10 @@ public class RobotTravel extends Robot{
     public void DStarLite() {
     	initialize();
     	computeShortestPath();
+    	int counter = 0;
+    	System.out.println("While loop started!");
     	while(start.getX() != destination.getX() || start.getY() != destination.getY()) {
+    		System.out.println("Iteration: " + counter++);
     		List<Point> succ = generateAdjacents(start);
     		double minOfSucc = Double.POSITIVE_INFINITY;
     		for (Point s: succ) {
@@ -340,7 +343,7 @@ public class RobotTravel extends Robot{
 	    double min = Double.POSITIVE_INFINITY;
 	    List<Point> succ = generateAdjacents(current);
 	    for (Point s_prime : succ) {
-		if (g.get(s_prime) + heuristic(current, s_prime) < min) min = g.get(s_prime) + heuristic(current, s_prime);
+			if (g.get(s_prime) + heuristic(current, s_prime) < min) min = g.get(s_prime) + heuristic(current, s_prime);
 	    }
 	    rhs.put(current, min);
 	}
@@ -348,19 +351,43 @@ public class RobotTravel extends Robot{
 	if (g.get(current) != rhs.get(current)) U.put(current, calcKey(current));
     }
 
-	public double findMinInVector(Map<Point, Vector<Double>> map) {
-		double min = Double.POSITIVE_INFINITY;
-        for (Vector<Double> v : map.values()) {
-          if (v.get(0) < min) {	
-        	min = v.get(0);
-          }
-        }
-		return min;
+	// public double findMinInVector(Map<Point, Vector<Double>> map) {
+	// 	double min = Double.POSITIVE_INFINITY;
+
+ //        for (Vector<Double> v : map.values()) {
+ //          if (Math.max(v.get(0), v.get(1)) < min) {	
+ //        	min = Math.max(v.get(0), v.get(1));
+ //          }
+ //        }
+	// 	return min;
+	// }
+
+	public Vector<Double> findMinVector(Map<Point, Vector<Double>> map) {
+		Vector<Double> minVec = new Vector<Double>();
+		minVec.add(Double.POSITIVE_INFINITY);
+		minVec.add(Double.POSITIVE_INFINITY);
+		for (Vector<Double> v: map.values()) {
+			if (vectorLessThan(v, minVec)) minVec = v;
+		}
+		return minVec;
 	}
 
-	public Point getVectorKeyFromValue(Map<Point, Vector<Double>> hm, Object value) {
+	public boolean vectorLessThan(Vector<Double> a, Vector<Double> b) {
+		boolean result = false;
+		if (a.get(0) < b.get(0)) result = true;
+		if (a.get(0) == b.get(0) && a.get(1) <= b.get(1)) result = true;
+		return result;
+	}
+
+	public boolean vectorEqual(Vector<Double> a, Vector<Double> b) {
+		boolean result = false;
+		if (a.get(0) == b.get(0) && a.get(1) == b.get(1)) result = true;
+		return result;
+	}
+
+	public Point getVectorKeyFromValue(Map<Point, Vector<Double>> hm, Vector<Double> v) {
         for (Point p : hm.keySet()) {
-          if (hm.get(p).get(0).equals(value)) {
+          if (vectorEqual(hm.get(p), v)) {
         		  return p;
           }
         }
@@ -368,9 +395,20 @@ public class RobotTravel extends Robot{
     }
 
 	public void computeShortestPath() {
-		while (U.get((Point) getVectorKeyFromValue(U, findMinInVector(U))).get(0) < calcKey(start).get(0) ||
-			rhs.get(start) != g.get(start)) {
-			Point current = (Point) getVectorKeyFromValue(U, findMinInVector(U));
+		int counter = 0;
+		// while (Math.min(U.get((Point) getVectorKeyFromValue(U, findMinInVector(U))).get(0), U.get((Point) getVectorKeyFromValue(U, findMinInVector(U))).get(1) )
+		// 	< Math.min(calcKey(start).get(0), calcKey(start).get(1)) ||
+		// 	rhs.get(start) != g.get(start)) {
+		// while (Math.min(U.get((Point) getVectorKeyFromValue(U, findMinInVector(U))).get(0), U.get((Point) getVectorKeyFromValue(U, findMinInVector(U))).get(1) )
+		// 	< Math.min(U.get(start).get(0), U.get(start).get(1)) ||
+		// 	rhs.get(start) != g.get(start)) {
+		while (vectorLessThan(findMinVector(U), calcKey(start)) || rhs.get(start) != g.get(start)) {
+
+			System.out.println("Iteration of computeShortestPath: " + counter++);
+			System.out.println("U.TopKey: " + findMinVector(U) + " calcKey(s_start): " + calcKey(start));
+			Point current = (Point) getVectorKeyFromValue(U, findMinVector(U));
+			U.remove(current);
+			System.out.println("Current point: " + current);
 			if (g.get(current) > rhs.get(current)) {
 				g.put(current, rhs.get(current));
 				List<Point> pred = generateAdjacents(current);
