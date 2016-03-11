@@ -2,6 +2,14 @@ import java.awt.Point;
 import java.util.*;
 import world.*;
 
+//Please read the DStarLite method, the computeShortestPath, and updateVertex methods.
+//Sourced from http://pub1.willowgarage.com/~konolige/cs225b/dlite_tro05.pdf
+	//Top of page 3 describing U, and page 4.
+//Also looked at insights from https://www.cs.cmu.edu/afs/cs.cmu.edu/Web/People/maxim/files/hsplanguide_icaps05ws.pdf
+
+//Currently, our code is getting stuck in an infinite loop in computeShortestPath. We think it might be to do with the movement to a wall, or maybe incorrect assumptions
+//about what constitutes a predecessor or successor node.
+
 public class RobotTravel extends Robot{
 	// Fields
 	Point start;
@@ -232,7 +240,8 @@ public class RobotTravel extends Robot{
 		return totalPath;
 	}
 	
-	// Modified Manhattan distance allowing for diagonal, where the cost of moving diagonally is slightly greater than moving straight.
+	// Modified Manhattan distance allowing for diagonal, where the cost of moving diagonally is slightly greater than moving straight, but is not Euclidean in cost,
+	// not Chebyshev distance, or pure, unmodified Manhattan distance.
 	// http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
 	public Double heuristic(Point p, Point d) {
 		double dx = Math.abs(p.getX() - d.getX());
@@ -273,12 +282,14 @@ public class RobotTravel extends Robot{
         return null;
     }
 
+    //-------------------------------------------------------------------------------------------------------------------------------
     private Map<Point, Double> g;
 	private Map<Point, Double> f;
 	private Map<Point, Vector<Double>> U;
     private Map<Point, Double> rhs;
     private Double[][] edgeC;
 
+    //Tried to implement according to top of page 4 at http://pub1.willowgarage.com/~konolige/cs225b/dlite_tro05.pdf
     public void DStarLite() {
     	initialize();
     	computeShortestPath();
@@ -303,12 +314,12 @@ public class RobotTravel extends Robot{
     		//Pseudocode:
     		//if movement == currentPosition, then move did not work. Change the edge cost of start to infinity.
     		//else movement worked. edge costs might still change? in any case, do the necessary changes, scan graph for changes
-    		//No, it's if the cost of any node to another node has changed. IE, if move worked?
-		boolean edgeCostChanged = false;
-		if (movement.equals(currentPosition)) {
-		    edgeC[(int) currentPosition.getX()][(int) currentPosition.getY()] = Double.POSITIVE_INFINITY;
-		    edgeCostChanged = true;
-		}
+	    		//No, it's if the cost of any node to another node has changed. IE, if move worked?
+			boolean edgeCostChanged = false;
+			if (movement.equals(currentPosition)) {
+			    edgeC[(int) currentPosition.getX()][(int) currentPosition.getY()] = Double.POSITIVE_INFINITY;
+			    edgeCostChanged = true;
+			}
     
     		// Map<Vector<Point>, Double> changedEdgeCosts = new HashMap<Vector<Point>, Double>();
     		if (edgeCostChanged) {
@@ -325,44 +336,46 @@ public class RobotTravel extends Robot{
 
     // initialize and populate global variables with initial data
     public void initialize() {
-	// g maps each point to its start distance 
-	g = new HashMap<Point, Double>();
+		// g maps each point to its start heuristic cost estimates
+		g = new HashMap<Point, Double>();
 
-	// rhs maps each point to its start distance based on the g values of its predecessors
-	rhs = new HashMap<Point, Double>();
+		// rhs maps each point to its start heuristic cost estimates based on the g values of its predecessors
+		rhs = new HashMap<Point, Double>();
 
-	// 
-	f = new HashMap<Point, Double>();
+		// 
+		//f = new HashMap<Point, Double>();
 
-	// U maps each point to a vector containing the minimum of g(s) and (rhs(s) + h(s,s_goal)), and the minimum of g(s) and rhs(s)
-	U = new HashMap<Point, Vector<Double>>();
+		// U maps each point to a vector containing the minimum of g(s) and (rhs(s) + h(s,s_goal)), and the minimum of g(s) and rhs(s)
+		// This acts as a priority queue that stores those vectors for each point on the map. Priority between vectors is described further in findMinVector
+		U = new HashMap<Point, Vector<Double>>();
 
-	// array containing the edge costs of each point, which is 1.0 unless the point is a wall
-	edgeC = new Double[rows][cols];
+		// array containing the edge costs of each point, which is 1.0 unless the point is a wall.
+		// This is our attempt to "scan the graph" for changes in edge costs
+		edgeC = new Double[rows][cols];
 
-	// populating g, rhs, and edgeC
-	for (int i = 0; i < rows; i++) { //x axis
-	    for (int j = 0; j < cols; j++) { //y axis
-		g.put(new Point(i, j), Double.POSITIVE_INFINITY);
-		rhs.put(new Point(i, j), Double.POSITIVE_INFINITY);
-		edgeC[i][j] = 1.0;
-	    }
-	}
-	rhs.put(destination, 0.0);
-	U.put(destination, calcKey(destination));
+		// populating g, rhs, and edgeC
+		for (int i = 0; i < rows; i++) { //x axis
+		    for (int j = 0; j < cols; j++) { //y axis
+			g.put(new Point(i, j), Double.POSITIVE_INFINITY);
+			rhs.put(new Point(i, j), Double.POSITIVE_INFINITY);
+			edgeC[i][j] = 1.0;
+		    }
+		}
+		rhs.put(destination, 0.0);
+		U.put(destination, calcKey(destination));
     }
 
     public void updateVertex(Point current) {
-	if (!(current.getX() == destination.getX() && current.getY() == destination.getY())) {
-	    double min = Double.POSITIVE_INFINITY;
-	    List<Point> succ = generateAdjacents(current);
-	    for (Point s_prime : succ) {
-			if (g.get(s_prime) + heuristic(current, s_prime) < min) min = g.get(s_prime) + heuristic(current, s_prime);
-	    }
-	    rhs.put(current, min);
-	}
-	if (U.keySet().contains(current)) U.remove(current);
-	if (g.get(current) != rhs.get(current)) U.put(current, calcKey(current));
+		if (!(current.getX() == destination.getX() && current.getY() == destination.getY())) {
+		    double min = Double.POSITIVE_INFINITY;
+		    List<Point> succ = generateAdjacents(current);
+		    for (Point s_prime : succ) {
+				if (g.get(s_prime) + heuristic(current, s_prime) < min) min = g.get(s_prime) + heuristic(current, s_prime);
+		    }
+		    rhs.put(current, min);
+		}
+		if (U.keySet().contains(current)) U.remove(current);
+		if (g.get(current) != rhs.get(current)) U.put(current, calcKey(current));
     }
 
 	// public double findMinInVector(Map<Point, Vector<Double>> map) {
@@ -387,7 +400,7 @@ public class RobotTravel extends Robot{
 		return minVec;
 	}
 
-    // returns whether vector a is less than vector b according to lexiconographic ordering
+    // returns whether vector a is less than vector b according to lexicographic ordering
 	public boolean vectorLessThan(Vector<Double> a, Vector<Double> b) {
 		boolean result = false;
 		if (a.get(0) < b.get(0)) result = true;
@@ -411,6 +424,7 @@ public class RobotTravel extends Robot{
         return null;
     }
 
+    // Compute the shortest path to take. This assumes that predecessors are the adjacent(neighboring) nodes. Not sure if that is a correct assumption.
 	public void computeShortestPath() {
 		int counter = 0;
 		// while (Math.min(U.get((Point) getVectorKeyFromValue(U, findMinInVector(U))).get(0), U.get((Point) getVectorKeyFromValue(U, findMinInVector(U))).get(1) )
@@ -423,9 +437,12 @@ public class RobotTravel extends Robot{
 
 			System.out.println("Iteration of computeShortestPath: " + counter++);
 			System.out.println("U.TopKey: " + findMinVector(U) + " calcKey(s_start): " + calcKey(start));
+
 			Point current = (Point) getVectorKeyFromValue(U, findMinVector(U));
 			U.remove(current);
+
 			System.out.println("Current point: " + current);
+
 			if (g.get(current) > rhs.get(current)) {
 				g.put(current, rhs.get(current));
 				List<Point> pred = generateAdjacents(current);
@@ -444,6 +461,7 @@ public class RobotTravel extends Robot{
 		}
 	}
 
+	// rhs = 0 or rhs = min of those values. See middle of page 3 at http://pub1.willowgarage.com/~konolige/cs225b/dlite_tro05.pdf
 	public Double calcRhs(Point current) {
 		double min = Double.POSITIVE_INFINITY;
 		if (current.getX() == destination.getX() && current.getY() == destination.getY()) min = 0;		
@@ -456,6 +474,7 @@ public class RobotTravel extends Robot{
 		return min;
 	}
 
+	// Calculate the key to be stored in the map U.
 	public Vector<Double> calcKey(Point current) {
 		Vector<Double> result = new Vector<Double>();
 		result.add(Math.min(g.get(current), calcRhs(current) + heuristic(current, destination)));
