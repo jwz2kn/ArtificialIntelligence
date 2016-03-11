@@ -289,7 +289,7 @@ public class RobotTravel extends Robot{
     private Map<Point, Double> rhs;
     private Double[][] edgeC;
 
-    //Tried to implement according to top of page 4 at http://pub1.willowgarage.com/~konolige/cs225b/dlite_tro05.pdf
+    //Tried to implement according to pseudocode at top of page 4 at http://pub1.willowgarage.com/~konolige/cs225b/dlite_tro05.pdf
     public void DStarLite() {
     	initialize();
     	computeShortestPath();
@@ -342,7 +342,6 @@ public class RobotTravel extends Robot{
 		// rhs maps each point to its start heuristic cost estimates based on the g values of its predecessors
 		rhs = new HashMap<Point, Double>();
 
-		// 
 		//f = new HashMap<Point, Double>();
 
 		// U maps each point to a vector containing the minimum of g(s) and (rhs(s) + h(s,s_goal)), and the minimum of g(s) and rhs(s)
@@ -365,6 +364,7 @@ public class RobotTravel extends Robot{
 		U.put(destination, calcKey(destination));
     }
 
+    // updates rhs and g values if necessary
     public void updateVertex(Point current) {
 		if (!(current.getX() == destination.getX() && current.getY() == destination.getY())) {
 		    double min = Double.POSITIVE_INFINITY;
@@ -389,7 +389,7 @@ public class RobotTravel extends Robot{
 	// 	return min;
 	// }
 
-    // returns minimum vector in map according to lexiconographic ordering
+    // returns minimum vector in map according to lexicographic ordering
 	public Vector<Double> findMinVector(Map<Point, Vector<Double>> map) {
 		Vector<Double> minVec = new Vector<Double>();
 		minVec.add(Double.POSITIVE_INFINITY);
