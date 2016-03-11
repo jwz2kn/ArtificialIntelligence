@@ -368,6 +368,7 @@ public class RobotTravel extends Robot{
     public void updateVertex(Point current) {
 		if (!(current.getX() == destination.getX() && current.getY() == destination.getY())) {
 		    double min = Double.POSITIVE_INFINITY;
+		    // succ is a list of all points adjacent to current position
 		    List<Point> succ = generateAdjacents(current);
 		    for (Point s_prime : succ) {
 				if (g.get(s_prime) + heuristic(current, s_prime) < min) min = g.get(s_prime) + heuristic(current, s_prime);
@@ -443,6 +444,7 @@ public class RobotTravel extends Robot{
 
 			System.out.println("Current point: " + current);
 
+			// if g(s) > rhs(s)
 			if (g.get(current) > rhs.get(current)) {
 				g.put(current, rhs.get(current));
 				List<Point> pred = generateAdjacents(current);
