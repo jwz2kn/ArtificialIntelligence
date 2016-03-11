@@ -2,8 +2,6 @@ import java.awt.Point;
 import java.util.*;
 import world.*;
 
-// Please read the AStar and the getKeyFromValue methods.
-
 public class RobotTravel extends Robot{
 	// Fields
 	Point start;
@@ -286,10 +284,14 @@ public class RobotTravel extends Robot{
     	computeShortestPath();
     	int counter = 0;
     	System.out.println("While loop started!");
+
+	// while start != destination
     	while(start.getX() != destination.getX() || start.getY() != destination.getY()) {
     		System.out.println("Iteration: " + counter++);
     		List<Point> succ = generateAdjacents(start);
     		double minOfSucc = Double.POSITIVE_INFINITY;
+
+		// looping through list of adjacents
     		for (Point s: succ) {
     			if (heuristic(start, s) + g.get(s) < minOfSucc) {
     				minOfSucc = heuristic(start, s) + g.get(s);
@@ -321,12 +323,24 @@ public class RobotTravel extends Robot{
     	return;
 	}
 
+    // initialize and populate global variables with initial data
     public void initialize() {
+	// g maps each point to its start distance 
 	g = new HashMap<Point, Double>();
+
+	// rhs maps each point to its start distance based on the g values of its predecessors
 	rhs = new HashMap<Point, Double>();
+
+	// 
 	f = new HashMap<Point, Double>();
+
+	// U maps each point to a vector containing the minimum of g(s) and (rhs(s) + h(s,s_goal)), and the minimum of g(s) and rhs(s)
 	U = new HashMap<Point, Vector<Double>>();
+
+	// array containing the edge costs of each point, which is 1.0 unless the point is a wall
 	edgeC = new Double[rows][cols];
+
+	// populating g, rhs, and edgeC
 	for (int i = 0; i < rows; i++) { //x axis
 	    for (int j = 0; j < cols; j++) { //y axis
 		g.put(new Point(i, j), Double.POSITIVE_INFINITY);
@@ -362,6 +376,7 @@ public class RobotTravel extends Robot{
 	// 	return min;
 	// }
 
+    // returns minimum vector in map according to lexiconographic ordering
 	public Vector<Double> findMinVector(Map<Point, Vector<Double>> map) {
 		Vector<Double> minVec = new Vector<Double>();
 		minVec.add(Double.POSITIVE_INFINITY);
@@ -372,6 +387,7 @@ public class RobotTravel extends Robot{
 		return minVec;
 	}
 
+    // returns whether vector a is less than vector b according to lexiconographic ordering
 	public boolean vectorLessThan(Vector<Double> a, Vector<Double> b) {
 		boolean result = false;
 		if (a.get(0) < b.get(0)) result = true;
@@ -379,6 +395,7 @@ public class RobotTravel extends Robot{
 		return result;
 	}
 
+    // returns whether two vectors are equal
 	public boolean vectorEqual(Vector<Double> a, Vector<Double> b) {
 		boolean result = false;
 		if (a.get(0) == b.get(0) && a.get(1) == b.get(1)) result = true;
