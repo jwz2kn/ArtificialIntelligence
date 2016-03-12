@@ -412,6 +412,12 @@ public class RobotTravel extends Robot{
 			g.put(new Point(i, j), Double.POSITIVE_INFINITY);
 			rhs.put(new Point(i, j), Double.POSITIVE_INFINITY);
 			predecessors.put(new Point(i, j), new Vector<Point>());
+			// Vector v = new Vector<Double>();
+			// // v.add(Double.POSITIVE_INFINITY);
+			// // v.add(Double.POSITIVE_INFINITY);
+			// v.add(0.0);
+			// v.add(0.0);
+			// U.put(new Point(i, j), v);
 			//edgeC[i][j] = 1.0;
 		    }
 		}
@@ -516,24 +522,37 @@ public class RobotTravel extends Robot{
 			System.out.println("Iteration of computeShortestPath: " + counter++);
 			System.out.println("U.TopKey: " + findMinVector(U) + " calcKey(s_start): " + calcKey(start));
 			System.out.println("g(start): " + g.get(start) + " rhs(start): " + rhs.get(start));
+
 			Point current = (Point) getVectorKeyFromValue(U, findMinVector(U));
 			U.remove(current);
-
+			System.out.println("g(current): " + g.get(current) + " rhs(current): " + rhs.get(current));
 			System.out.println("Current point: " + current);
 
 			// if g(s) > rhs(s)
 			if (g.get(current) > rhs.get(current)) {
 				g.put(current, rhs.get(current));
 				//List<Point> pred = generateAdjacents(current);
-				Vector<Point> pred = predecessors.get(current);
-				for (Point s: pred) {
-					System.out.println("In 1st if statement, Update Vertex called for " + s);
-					updateVertex(s);
+				System.out.println("In if statement");
+				if (current.equals(destination)) {
+					List<Point> pred = generateAdjacents(current);
+					for (Point s: pred) {
+						System.out.println("In 1st if statement, Update Vertex called for " + s);
+						
+						updateVertex(s);
+					}
+				}
+				else {
+					Vector<Point> pred = predecessors.get(current);
+					for (Point s: pred) {
+						System.out.println("In 1st if statement, Update Vertex called for " + s);
+						updateVertex(s);
+					}
 				}
 			}
-			else {
+			else if (g.get(current) == Double.POSITIVE_INFINITY && rhs.get(current) == Double.POSITIVE_INFINITY){
 				g.put(current, Double.POSITIVE_INFINITY);
 				//List<Point> pred = generateAdjacents(current);
+				System.out.println("In else statement");
 				Vector<Point> pred = predecessors.get(current);
 				pred.add(current);
 				for (Point s: pred) {
@@ -551,6 +570,20 @@ public class RobotTravel extends Robot{
 		else {
 			//List<Point> pred = generateAdjacents(current);
 			Vector<Point> pred = predecessors.get(current);
+			
+			// for (Point s_prime : pred) {
+			//     //	if (g.get(s_prime) + heuristic(s_prime, current) < min) min = g.get(s_prime) + heuristic(s_prime, current);
+			//     Vector<Point> v = new Vector<Point>();
+			//     v.add(s_prime);
+			//     v.add(current);
+			//     // System.out.println("v: " + v);
+			//     // System.out.println("g(s_prime): " + g.get(s_prime));
+			//     // System.out.println("c(v): " + c.get(v));
+			//     if (s_prime != null && current != null && g.get(s_prime) != null && c.get(v) != null) {
+			//     	if (g.get(s_prime) + c.get(v) < min) min = g.get(s_prime) + c.get(v);
+			//     }
+			// }
+			
 			for (Point s_prime : pred) {
 			    //	if (g.get(s_prime) + heuristic(s_prime, current) < min) min = g.get(s_prime) + heuristic(s_prime, current);
 			    Vector<Point> v = new Vector<Point>();
@@ -570,6 +603,8 @@ public class RobotTravel extends Robot{
 		Vector<Double> result = new Vector<Double>();
 		result.add(Math.min(g.get(current), calcRhs(current)) + heuristic(current, destination));
 		result.add(Math.min(g.get(current), calcRhs(current)));
+		// result.add(Math.min(g.get(current), rhs.get(current)) + heuristic(current, destination));
+		// result.add(Math.min(g.get(current), rhs.get(current)));
 		return result;
 	}
 
