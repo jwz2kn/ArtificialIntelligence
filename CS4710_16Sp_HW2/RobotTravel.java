@@ -198,7 +198,7 @@ public class RobotTravel extends Robot{
 		return new ArrayList<Point>();
 	}
 
-	//Generate adjacent points--- Doesn't remove walls, but does remove walls.
+	//Generate adjacent points--- Doesn't remove walls, but does remove nulls.
 	public List<Point> generateAdjacents(Point current) {
 		List<Point> adj = new ArrayList<Point>();
 		Point nw = new Point((int) current.getX() - 1, (int) current.getY() - 1);
@@ -211,7 +211,7 @@ public class RobotTravel extends Robot{
 		Point ea = new Point((int)current.getX(), (int)current.getY() + 1);
 		adj.add(nw); adj.add(ne); adj.add(n); adj.add(w);
 		adj.add(sw); adj.add(s); adj.add(se); adj.add(ea);
-		System.out.println("All adj before removing invalids: " + adj.toString());
+		//System.out.println("All adj before removing invalids: " + adj.toString());
 
 		// Remove the nodes that return null upon pinging--- Those are outside the boundaries of the map.
 		Iterator<Point> i = adj.iterator();
@@ -225,6 +225,25 @@ public class RobotTravel extends Robot{
 		} //Allowable adjacents fully generated
 		return adj;
 	}
+
+	//Generate adjacent points--- Doesn't remove nulls or walls
+	public List<Point> generateAllAdjacents(Point current) {
+		List<Point> adj = new ArrayList<Point>();
+		Point nw = new Point((int) current.getX() - 1, (int) current.getY() - 1);
+		Point ne = new Point((int)current.getX() - 1, (int)current.getY() + 1);
+		Point n = new Point((int)current.getX() - 1, (int)current.getY());
+		Point w = new Point((int)current.getX(), (int)current.getY() - 1);
+		Point sw = new Point((int)current.getX() + 1, (int)current.getY() - 1);
+		Point s = new Point((int)current.getX() + 1, (int)current.getY());
+		Point se = new Point((int)current.getX() + 1, (int)current.getY() + 1);
+		Point ea = new Point((int)current.getX(), (int)current.getY() + 1);
+		adj.add(nw); adj.add(ne); adj.add(n); adj.add(w);
+		adj.add(sw); adj.add(s); adj.add(se); adj.add(ea);
+		//System.out.println("All adj before removing invalids: " + adj.toString());
+
+		return adj;
+	}
+
 
 	//Take a Map of Point to Point (which theoretically would include all the mappings of node to node for correct path)
 	// and construct a list from that Map up until the passed in current point.
@@ -287,7 +306,8 @@ public class RobotTravel extends Robot{
 	private Map<Point, Double> f;
 	private Map<Point, Vector<Double>> U;
     private Map<Point, Double> rhs;
-    private Double[][] edgeC;
+    //private Double[][] edgeC;
+    private Map<Vector<Point>, Double> c;
 
     //Tried to implement according to pseudocode at top of page 4 at http://pub1.willowgarage.com/~konolige/cs225b/dlite_tro05.pdf
     public void DStarLite() {
@@ -304,27 +324,34 @@ public class RobotTravel extends Robot{
 
 		// looping through list of adjacents
     		for (Point s: succ) {
-    			if (heuristic(start, s) + g.get(s) < minOfSucc) {
-    				minOfSucc = heuristic(start, s) + g.get(s);
-    				start = s;
-    			}
+		    Vector<Point> v = new Vector<Point>();
+		    v.add(start);
+		    v.add(s);
+		    if (c.get(v) + g.get(s) < minOfSucc) {
+			minOfSucc = c.get(v) + g.get(s);
+			start = s;
+		    }
     		}
-    		Point currentPosition = super.getPosition();
+    		Point beforeMove = super.getPosition();
     		Point movement = super.move(start);
     		//Pseudocode:
     		//if movement == currentPosition, then move did not work. Change the edge cost of start to infinity.
     		//else movement worked. edge costs might still change? in any case, do the necessary changes, scan graph for changes
 	    		//No, it's if the cost of any node to another node has changed. IE, if move worked?
 			boolean edgeCostChanged = false;
-			if (movement.equals(currentPosition)) {
-			    edgeC[(int) currentPosition.getX()][(int) currentPosition.getY()] = Double.POSITIVE_INFINITY;
+			if (movement.equals(beforeMove)) {
+			    //edgeC[(int) currentPosition.getX()][(int) currentPosition.getY()] = Double.POSITIVE_INFINITY;
 			    edgeCostChanged = true;
+			    Vector<Point> v = new Vector<Point>();
+			    v.add(beforeMove);
+			    v.add(start);
+			    c.put(v, Double.POSITIVE_INFINITY);
 			}
     
     		// Map<Vector<Point>, Double> changedEdgeCosts = new HashMap<Vector<Point>, Double>();
     		if (edgeCostChanged) {
 		    // Update the edge cost = heuristic (first element, second element)
-		    updateVertex(movement); 
+		    updateVertex(beforeMove); 
     			for (Point s: U.keySet()) { // NOT SURE IF THIS WOULD WORK, DUE TO CONCURRENCY ISSUES
     				U.put(s, calcKey(s));
     			}
@@ -342,22 +369,35 @@ public class RobotTravel extends Robot{
 		// rhs maps each point to its start heuristic cost estimates based on the g values of its predecessors
 		rhs = new HashMap<Point, Double>();
 
-		//f = new HashMap<Point, Double>();
-
 		// U maps each point to a vector containing the minimum of g(s) and (rhs(s) + h(s,s_goal)), and the minimum of g(s) and rhs(s)
+
+		c = new HashMap<Vector<Point>, Double>();
 		// This acts as a priority queue that stores those vectors for each point on the map. Priority between vectors is described further in findMinVector
 		U = new HashMap<Point, Vector<Double>>();
 
 		// array containing the edge costs of each point, which is 1.0 unless the point is a wall.
 		// This is our attempt to "scan the graph" for changes in edge costs
-		edgeC = new Double[rows][cols];
+		//edgeC = new Double[rows][cols];
 
 		// populating g, rhs, and edgeC
 		for (int i = 0; i < rows; i++) { //x axis
 		    for (int j = 0; j < cols; j++) { //y axis
 			g.put(new Point(i, j), Double.POSITIVE_INFINITY);
 			rhs.put(new Point(i, j), Double.POSITIVE_INFINITY);
-			edgeC[i][j] = 1.0;
+			//edgeC[i][j] = 1.0;
+		    }
+		}
+
+		for (int i = 0; i < rows; i++) { //x axis
+		    for (int j = 0; j < cols; j++) { //y axis
+			Point current = new Point(i,j);
+			List<Point> adj = generateAllAdjacents(current);
+			for (Point n : adj) {
+			    Vector<Point> v = new Vector<Point>();
+			    v.add(current);
+			    v.add(n);
+			    c.put(v, heuristic(current, n));
+			}
 		    }
 		}
 		rhs.put(destination, 0.0);
@@ -371,7 +411,11 @@ public class RobotTravel extends Robot{
 		    // succ is a list of all points adjacent to current position
 		    List<Point> succ = generateAdjacents(current);
 		    for (Point s_prime : succ) {
-				if (g.get(s_prime) + heuristic(current, s_prime) < min) min = g.get(s_prime) + heuristic(current, s_prime);
+			//	if (g.get(s_prime) + heuristic(current, s_prime) < min) min = g.get(s_prime) + heuristic(current, s_prime);
+			    Vector<Point> v = new Vector<Point>();
+			    v.add(current);
+			    v.add(s_prime);
+			    if (g.get(s_prime) + c.get(v) < min) min = g.get(s_prime) + c.get(v);
 		    }
 		    rhs.put(current, min);
 		}
@@ -470,7 +514,11 @@ public class RobotTravel extends Robot{
 		else {
 			List<Point> pred = generateAdjacents(current);
 			for (Point s_prime : pred) {
-				if (g.get(s_prime) + heuristic(s_prime, current) < min) min = g.get(s_prime) + heuristic(s_prime, current);
+			    //	if (g.get(s_prime) + heuristic(s_prime, current) < min) min = g.get(s_prime) + heuristic(s_prime, current);
+			    Vector<Point> v = new Vector<Point>();
+			    v.add(s_prime);
+			    v.add(current);
+			    if (g.get(s_prime) + c.get(v) < min) min = g.get(s_prime) + c.get(v);
 			}
 		}
 		return min;
@@ -479,7 +527,7 @@ public class RobotTravel extends Robot{
 	// Calculate the key to be stored in the map U.
 	public Vector<Double> calcKey(Point current) {
 		Vector<Double> result = new Vector<Double>();
-		result.add(Math.min(g.get(current), calcRhs(current) + heuristic(current, destination)));
+		result.add(Math.min(g.get(current), calcRhs(current)) + heuristic(current, destination));
 		result.add(Math.min(g.get(current), calcRhs(current)));
 		return result;
 	}
