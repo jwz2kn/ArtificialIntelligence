@@ -219,7 +219,7 @@ public class RobotTravel extends Robot{
 			Point el = i.next();
 			//if (super.pingMap(new Point((int)el.getX(), (int)el.getY())) == null) {
 			if (el.getX() >= rows || el.getY() >= cols || el.getX() < 0 || el.getY() < 0) {
-				System.out.println(el.toString());
+				//System.out.println(el.toString());
 				i.remove();
 			}
 		} //Allowable adjacents fully generated
@@ -308,6 +308,7 @@ public class RobotTravel extends Robot{
     private Map<Point, Double> rhs;
     //private Double[][] edgeC;
     private Map<Vector<Point>, Double> c;
+    private Map<Point, Vector<Point>> predecessors;
 
     //Tried to implement according to pseudocode at top of page 4 at http://pub1.willowgarage.com/~konolige/cs225b/dlite_tro05.pdf
     public void DStarLite() {
@@ -357,6 +358,18 @@ public class RobotTravel extends Robot{
     			}
     			computeShortestPath();
     		}
+    		else {
+    			if (!predecessors.get(movement).isEmpty()) {
+    				Vector<Point> alreadyInPred = predecessors.get(movement);
+    				alreadyInPred.add(beforeMove);
+    				predecessors.put(movement, alreadyInPred);
+    			}
+    			else {
+    				Vector<Point> temp = new Vector<Point>();
+    				temp.add(beforeMove);
+    				predecessors.put(movement, temp);
+    			}
+    		}
     	}
     	return;
 	}
@@ -364,6 +377,7 @@ public class RobotTravel extends Robot{
     // initialize and populate global variables with initial data
     public void initialize() {
 		// g maps each point to its start heuristic cost estimates
+		predecessors = new HashMap<Point, Vector<Point>>();
 		g = new HashMap<Point, Double>();
 
 		// rhs maps each point to its start heuristic cost estimates based on the g values of its predecessors
@@ -379,29 +393,42 @@ public class RobotTravel extends Robot{
 		// This is our attempt to "scan the graph" for changes in edge costs
 		//edgeC = new Double[rows][cols];
 
+		for (int i = 0; i < rows; i++) { //x axis
+		    for (int j = 0; j < cols; j++) { //y axis
+			Point current = new Point(i,j);
+			List<Point> adj = generateAllAdjacents(current);
+			//List<Point> adj = generateAdjacents(current);
+				for (Point n : adj) {
+				    Vector<Point> v = new Vector<Point>();
+				    v.add(current);
+				    v.add(n);
+				    c.put(v, heuristic(current, n));
+				}
+		    }
+		}
 		// populating g, rhs, and edgeC
 		for (int i = 0; i < rows; i++) { //x axis
 		    for (int j = 0; j < cols; j++) { //y axis
 			g.put(new Point(i, j), Double.POSITIVE_INFINITY);
 			rhs.put(new Point(i, j), Double.POSITIVE_INFINITY);
+			predecessors.put(new Point(i, j), new Vector<Point>());
 			//edgeC[i][j] = 1.0;
 		    }
 		}
 
-		for (int i = 0; i < rows; i++) { //x axis
-		    for (int j = 0; j < cols; j++) { //y axis
-			Point current = new Point(i,j);
-			List<Point> adj = generateAllAdjacents(current);
-			for (Point n : adj) {
-			    Vector<Point> v = new Vector<Point>();
-			    v.add(current);
-			    v.add(n);
-			    c.put(v, heuristic(current, n));
-			}
-		    }
-		}
+		// for (int i = 0; i < rows; i++) { //x axis
+		//     for (int j = 0; j < cols; j++) { //y axis
+		// 	//g.put(new Point(i, j), Double.POSITIVE_INFINITY);
+		// 	rhs.put(new Point(i, j), calcRhs(new Point(i, j)));
+		// 	//edgeC[i][j] = 1.0;
+		//     }
+		// }
+
+
 		rhs.put(destination, 0.0);
 		U.put(destination, calcKey(destination));
+		System.out.println(destination.toString() + "\t" + calcKey(destination));
+
     }
 
     // updates rhs and g values if necessary
@@ -457,10 +484,16 @@ public class RobotTravel extends Robot{
 	public boolean vectorEqual(Vector<Double> a, Vector<Double> b) {
 		boolean result = false;
 		if (a.get(0) == b.get(0) && a.get(1) == b.get(1)) result = true;
+		else if (a.get(0) == Double.POSITIVE_INFINITY &&
+				 b.get(0) == Double.POSITIVE_INFINITY &&
+				 a.get(1) == Double.POSITIVE_INFINITY &&
+				 b.get(1) == Double.POSITIVE_INFINITY) result = true;
+		System.out.println(result);
 		return result;
 	}
 
 	public Point getVectorKeyFromValue(Map<Point, Vector<Double>> hm, Vector<Double> v) {
+		System.out.println(hm);
         for (Point p : hm.keySet()) {
           if (vectorEqual(hm.get(p), v)) {
         		  return p;
@@ -482,7 +515,7 @@ public class RobotTravel extends Robot{
 
 			System.out.println("Iteration of computeShortestPath: " + counter++);
 			System.out.println("U.TopKey: " + findMinVector(U) + " calcKey(s_start): " + calcKey(start));
-
+			System.out.println("g(start): " + g.get(start) + " rhs(start): " + rhs.get(start));
 			Point current = (Point) getVectorKeyFromValue(U, findMinVector(U));
 			U.remove(current);
 
@@ -491,16 +524,20 @@ public class RobotTravel extends Robot{
 			// if g(s) > rhs(s)
 			if (g.get(current) > rhs.get(current)) {
 				g.put(current, rhs.get(current));
-				List<Point> pred = generateAdjacents(current);
+				//List<Point> pred = generateAdjacents(current);
+				Vector<Point> pred = predecessors.get(current);
 				for (Point s: pred) {
+					System.out.println("In 1st if statement, Update Vertex called for " + s);
 					updateVertex(s);
 				}
 			}
 			else {
 				g.put(current, Double.POSITIVE_INFINITY);
-				List<Point> pred = generateAdjacents(current);
+				//List<Point> pred = generateAdjacents(current);
+				Vector<Point> pred = predecessors.get(current);
 				pred.add(current);
 				for (Point s: pred) {
+					System.out.println("In 2nd if statement, Update Vertex called for " + s);
 					updateVertex(s);
 				}				
 			}
@@ -512,12 +549,16 @@ public class RobotTravel extends Robot{
 		double min = Double.POSITIVE_INFINITY;
 		if (current.getX() == destination.getX() && current.getY() == destination.getY()) min = 0;		
 		else {
-			List<Point> pred = generateAdjacents(current);
+			//List<Point> pred = generateAdjacents(current);
+			Vector<Point> pred = predecessors.get(current);
 			for (Point s_prime : pred) {
 			    //	if (g.get(s_prime) + heuristic(s_prime, current) < min) min = g.get(s_prime) + heuristic(s_prime, current);
 			    Vector<Point> v = new Vector<Point>();
 			    v.add(s_prime);
 			    v.add(current);
+			    // System.out.println("v: " + v);
+			    // System.out.println("g(s_prime): " + g.get(s_prime));
+			    // System.out.println("c(v): " + c.get(v));
 			    if (g.get(s_prime) + c.get(v) < min) min = g.get(s_prime) + c.get(v);
 			}
 		}
