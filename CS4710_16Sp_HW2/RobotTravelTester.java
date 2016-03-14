@@ -23,7 +23,7 @@ public class RobotTravelTester {
 			myRobot.addToWorld (myWorld);
 
 			int GUImult = Integer.parseInt(input.replaceAll("[\\D]", ""));
-			//myWorld.createGUI(GUImult*280, GUImult*200, 300 - 20*(GUImult-1));
+			myWorld.createGUI(GUImult*280, GUImult*200, 300 - 20*(GUImult-1));
 			// Tell the robot to travel to the destination.
 			// You will be implementing this method yourself !
 			myRobot.travelToDestination();
