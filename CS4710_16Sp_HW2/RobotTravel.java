@@ -12,14 +12,14 @@ import world.*;
 
 public class RobotTravel extends Robot{
 	// Fields
-	Point start;
-	Point destination;
-	boolean uncertainty;
-	int cols;
-	int rows;
-	Map<Point, Point> cameFrom;
-	static List<Point> evaluated;
-	static List<Point> notEvaluated;
+	private Point start;
+	private Point destination;
+	private boolean uncertainty;
+	private int cols;
+	private int rows;
+	private Map<Point, Point> cameFrom;
+	private static List<Point> evaluated;
+	private static List<Point> notEvaluated;
 
 	// Constructor
 	public RobotTravel(Point st, Point dest, boolean u, int c, int r) {
@@ -40,7 +40,7 @@ public class RobotTravel extends Robot{
 			List<Point> path = AStar(start, destination);
 			long estimatedTime = System.nanoTime() - startTime;
 			System.out.println("Time it took to generate path: " + Math.pow(10,-9)*estimatedTime + " s");
-			System.out.println("Path: " + path.toString());
+			// System.out.println("Path: " + path.toString());
 			if (!path.isEmpty() && path != null) {
 				for(int i = 0; i < path.size(); i++) {
 					super.move(path.get(i));
@@ -56,7 +56,7 @@ public class RobotTravel extends Robot{
 			List<Point> path = AStar(start, destination);
 			long estimatedTime = System.nanoTime() - startTime;
 			System.out.println("Time it took to generate path: " + Math.pow(10,-9)*estimatedTime + " s");
-			System.out.println("Path: " + path.toString());
+			// System.out.println("Path: " + path.toString());
 			if (!path.isEmpty() && path != null) {
 				for(int i = 0; i < path.size(); i++) {
 					super.move(path.get(i));
@@ -88,7 +88,7 @@ public class RobotTravel extends Robot{
 		}
 		//Cost of start going to start is zero.
 		gScore.put(st, 0.0);
-		System.out.println("gScores: " + gScore.toString());
+		// System.out.println("gScores: " + gScore.toString());
 		
 		//Map of f scores, initialized to positive infinity for every point
 		Map<Point, Double> fScore = new HashMap<Point, Double>();
@@ -100,18 +100,18 @@ public class RobotTravel extends Robot{
 		}
 		//Cost of start going to goal as estimated by the heuristic initially.		
 		fScore.put(st, heuristic(st, go));
-		System.out.println("fScores: " + fScore.toString());
+		// System.out.println("fScores: " + fScore.toString());
 		
 		//Switch != and == to turn loop on and off
 		int bigWhile = 0;
 		// While there's still nodes to be evaluated, keep evaluating.
 		while (notEvaluated.isEmpty() == false) {
 			
-			//System.out.println(notEvaluated.toString());
-			System.out.println("----------------------------------------------------------------");
-			System.out.println("Iteration of big while loop: " + bigWhile++);
-			System.out.println("Came From: " + cameFrom.toString());
-			System.out.println("Start: " + st.toString());
+			// System.out.println(notEvaluated.toString());
+			// System.out.println("----------------------------------------------------------------");
+			// System.out.println("Iteration of big while loop: " + bigWhile++);
+			// System.out.println("Came From: " + cameFrom.toString());
+			// System.out.println("Start: " + st.toString());
 			
 			// Find node with the lowest score. Currently, this is part of what's causing us problems with test cases that have walls.
 			// Go to the method getKeyFromValue for more detail.
@@ -121,13 +121,13 @@ public class RobotTravel extends Robot{
 			// If the current point doesn't exist, something's really wrong! Break. 
 			// Considering removing this statement, but we're getting errors unless we keep it in. Might modify getKeyFromValue further...
 			if (current == null) { 
-				System.out.println("Lowest current fScore: " + lowestCurrentScore);
-				System.out.println("fScores: " + fScore.toString());
-				System.out.println("Current is null");
+				// System.out.println("Lowest current fScore: " + lowestCurrentScore);
+				// System.out.println("fScores: " + fScore.toString());
+				// System.out.println("Current is null");
 				break; 
 			}
-			System.out.println("Lowest current fScore: " + lowestCurrentScore);
-			System.out.println("fScores: " + fScore.toString());
+			// System.out.println("Lowest current fScore: " + lowestCurrentScore);
+			// System.out.println("fScores: " + fScore.toString());
 			//current.equals(destination)
 			
 			// If current node is equals goal, then we've generated a full path, and can go reconstruct it into a list.
@@ -138,24 +138,24 @@ public class RobotTravel extends Robot{
 			// Add current node to evaluated and take it from notEvaluated.
 			if (notEvaluated.contains(current)) notEvaluated.remove(current);
 			if (!evaluated.contains(current)) evaluated.add(current);
-			System.out.println("Current: " + current.toString());
+			// System.out.println("Current: " + current.toString());
 			
 			//Generate adjacent nodes of current node.
 			List<Point> adj = generateAdjacents(current);
-			System.out.println("Allowable adjacents fully generated.");
-			System.out.println("Allowable adjacents: " + adj.toString());
+			// System.out.println("Allowable adjacents fully generated.");
+			// System.out.println("Allowable adjacents: " + adj.toString());
 
 			//Now, for each adjacent node to the current, evaluate the fScores and gScores.
 			double tentative_gScore;
 			int counter = 0;
 			for (Point neighbor: adj) {
-				System.out.println(counter++);
+				// System.out.println(counter++);
 				//System.out.println(heuristic(current, neighbor));
 
 				// Here we tried multiple ways of writing the algorithm, and multiple ways of dealing with the walls.
 
 				if (evaluated.contains(neighbor)) {
-					System.out.println("Neighbor already evaluated!");
+					// System.out.println("Neighbor already evaluated!");
 					continue;
 				}
 				//Pseudocode from wikipedia:
@@ -176,13 +176,13 @@ public class RobotTravel extends Robot{
 				//Can also just change the heuristic such that diagonals are weighted more heavily. Which, again, the more you weight diagonals, 
 				//in a lot of cases, the more pings. In our case, we chose the cost of the diagonal to be 1.4 and cost of straight move to be 1.
 				tentative_gScore = gScore.get(current) + heuristic(current, neighbor);
-				System.out.println("Tentative gScore of " + neighbor.toString() + ": "+tentative_gScore);
+				// System.out.println("Tentative gScore of " + neighbor.toString() + ": "+tentative_gScore);
 				if (!notEvaluated.contains(neighbor)) {
-					System.out.println("Neighbor added to notEvaluated.");
+					// System.out.println("Neighbor added to notEvaluated.");
 					notEvaluated.add(neighbor);
 				}
 				else if (tentative_gScore >= gScore.get(neighbor)) {
-					System.out.println("tentative_gScore >= neighbor gScore");
+					// System.out.println("tentative_gScore >= neighbor gScore");
 					continue;
 				}
 				if (uncertainty){
@@ -197,7 +197,7 @@ public class RobotTravel extends Robot{
 						h *= 0.999;
 					fScore.put(neighbor, h);
 					
-					System.out.println("fScore of neighbor: " + fScore.get(neighbor).toString());
+					// System.out.println("fScore of neighbor: " + fScore.get(neighbor).toString());
 				}
 				else {
 					if (!super.pingMap(neighbor).equals("X")) {
@@ -212,17 +212,17 @@ public class RobotTravel extends Robot{
 							h *= 0.999;
 						fScore.put(neighbor, h);
 						
-						System.out.println("fScore of neighbor: " + fScore.get(neighbor).toString());
+						// System.out.println("fScore of neighbor: " + fScore.get(neighbor).toString());
 					}
 				}
 
 			}
-			System.out.println("Not Evaluated Nodes: " + notEvaluated.toString());
-			System.out.println("Evaluated Nodes: " + evaluated.toString());
+			// System.out.println("Not Evaluated Nodes: " + notEvaluated.toString());
+			// System.out.println("Evaluated Nodes: " + evaluated.toString());
 
 			fScore.remove(current);
 		}
-		System.out.println("While loop exited, with failure.");
+		// System.out.println("While loop exited, with failure.");
 
 		// No path generated, return empty list.
 		return new ArrayList<Point>();
@@ -283,7 +283,7 @@ public class RobotTravel extends Robot{
 		while (cameFrom.keySet().contains(current)) {
 			current = cameFrom.get(current);
 			totalPath.add(current);
-			System.out.println("Path Reconstructing...");
+			// System.out.println("Path Reconstructing...");
 		}
 		Collections.reverse(totalPath);
 		return totalPath;
@@ -301,7 +301,7 @@ public class RobotTravel extends Robot{
 			for (int i = 0; i < numPings; i++) {
 				String current = super.pingMap(d);
 				if (current.equals("X")) numOfX++;
-				if (numOfX > numPings/2 ) return 100*dx + 100*dy;
+				if (numOfX > numPings/2 ) /*return 100*dx + 100*dy;*/ return 10000.0;
 			}
 		}
 
