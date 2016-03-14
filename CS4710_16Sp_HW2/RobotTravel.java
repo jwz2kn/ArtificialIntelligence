@@ -123,7 +123,8 @@ public class RobotTravel extends Robot{
 			if (current == null) { 
 				System.out.println("Lowest current fScore: " + lowestCurrentScore);
 				System.out.println("fScores: " + fScore.toString());
-				System.out.println("Current is null"); break; 
+				System.out.println("Current is null");
+				break; 
 			}
 			System.out.println("Lowest current fScore: " + lowestCurrentScore);
 			System.out.println("fScores: " + fScore.toString());
@@ -149,7 +150,7 @@ public class RobotTravel extends Robot{
 			int counter = 0;
 			for (Point neighbor: adj) {
 				System.out.println(counter++);
-				System.out.println(heuristic(current, neighbor));
+				//System.out.println(heuristic(current, neighbor));
 
 				// Here we tried multiple ways of writing the algorithm, and multiple ways of dealing with the walls.
 
@@ -200,19 +201,19 @@ public class RobotTravel extends Robot{
 				}
 				else {
 					if (!super.pingMap(neighbor).equals("X")) {
-					if (!notEvaluated.contains(neighbor)) notEvaluated.add(neighbor);
-					//tentative_gScore = gScore.get(current) + heuristic(current, neighbor);
-					cameFrom.put(neighbor, current);
-					//cameFrom.put(current, neighbor);
-					gScore.put(neighbor, tentative_gScore);
-					double h = gScore.get(neighbor) + heuristic(neighbor, go);
-					//Tiebreaking. This reduces this current path's fScore, because it's the most efficient thus far.
-					while (fScore.values().contains(h))
-						h *= 0.999;
-					fScore.put(neighbor, h);
-					
-					System.out.println("fScore of neighbor: " + fScore.get(neighbor).toString());
-				}
+						if (!notEvaluated.contains(neighbor)) notEvaluated.add(neighbor);
+						//tentative_gScore = gScore.get(current) + heuristic(current, neighbor);
+						cameFrom.put(neighbor, current);
+						//cameFrom.put(current, neighbor);
+						gScore.put(neighbor, tentative_gScore);
+						double h = gScore.get(neighbor) + heuristic(neighbor, go);
+						//Tiebreaking. This reduces this current path's fScore, because it's the most efficient thus far.
+						while (fScore.values().contains(h))
+							h *= 0.999;
+						fScore.put(neighbor, h);
+						
+						System.out.println("fScore of neighbor: " + fScore.get(neighbor).toString());
+					}
 				}
 
 			}
@@ -300,8 +301,8 @@ public class RobotTravel extends Robot{
 			for (int i = 0; i < numPings; i++) {
 				String current = super.pingMap(d);
 				if (current.equals("X")) numOfX++;
+				if (numOfX > numPings/2 ) return 100*dx + 100*dy;
 			}
-			if (numOfX > numPings/2 ) return 100*dx + 100*dy;
 		}
 
 
