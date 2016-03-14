@@ -296,8 +296,8 @@ public class RobotTravel extends Robot{
 		double dy = Math.abs(p.getY() - d.getY());
 		if (uncertainty) {
 			int numOfX = 0;
-			int numPings = (int) Math.pow(Math.max(cols, rows), 2);
-			for (int i = 0; i < numPings + evaluated.size(); i++) {
+			int numPings = (int) /*Math.pow(Math.max(cols, rows), 2) +*/ Math.pow(Math.max(cols, rows), 2); //evaluated.size();
+			for (int i = 0; i < numPings; i++) {
 				String current = super.pingMap(d);
 				if (current.equals("X")) numOfX++;
 			}
