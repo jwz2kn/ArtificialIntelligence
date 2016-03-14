@@ -4,7 +4,6 @@ public class RobotTravelTester {
 
 	public static void main(String[] args) {
 		try {
-			//https://en.wikipedia.org/wiki/Pathfinding#Algorithms_used_in_pathfinding
 			//https://en.wikipedia.org/wiki/A*_search_algorithm
 
 			/*
@@ -12,10 +11,11 @@ public class RobotTravelTester {
 			* Second parameter is whether or not the world is uncertain.
 			*/
 
-			boolean uncertainty =  true;
-			String input = "TestCases/myInputFile4.txt";
+			boolean uncertainty =  false;
+			String input = "TestCases/myInputFile1.txt";
 
 			World myWorld = new World (input, uncertainty );
+			
 			/* Create a robot that will run around in myWorld */
 			RobotTravel myRobot 
 				= new RobotTravel(myWorld.getStartPos(), myWorld.getEndPos(), 
