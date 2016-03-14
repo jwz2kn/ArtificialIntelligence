@@ -51,7 +51,19 @@ public class RobotTravel extends Robot{
 			
 		}
 		else {
-			DStarLite();
+			//DStarLite();
+			long startTime = System.nanoTime();
+			List<Point> path = AStar(start, destination);
+			long estimatedTime = System.nanoTime() - startTime;
+			System.out.println("Time it took to generate path: " + Math.pow(10,-9)*estimatedTime + " s");
+			System.out.println("Path: " + path.toString());
+			if (!path.isEmpty() && path != null) {
+				for(int i = 0; i < path.size(); i++) {
+					super.move(path.get(i));
+				}
+			} else {
+				System.out.println("You were either at the destination already or there wasn't a valid path to get there!");
+			}
 		}
 	}
 	
@@ -172,7 +184,7 @@ public class RobotTravel extends Robot{
 					System.out.println("tentative_gScore >= neighbor gScore");
 					continue;
 				}
-				if (!super.pingMap(neighbor).equals("X")) {
+				if (uncertainty){
 					if (!notEvaluated.contains(neighbor)) notEvaluated.add(neighbor);
 					//tentative_gScore = gScore.get(current) + heuristic(current, neighbor);
 					cameFrom.put(neighbor, current);
@@ -186,6 +198,23 @@ public class RobotTravel extends Robot{
 					
 					System.out.println("fScore of neighbor: " + fScore.get(neighbor).toString());
 				}
+				else {
+					if (!super.pingMap(neighbor).equals("X")) {
+					if (!notEvaluated.contains(neighbor)) notEvaluated.add(neighbor);
+					//tentative_gScore = gScore.get(current) + heuristic(current, neighbor);
+					cameFrom.put(neighbor, current);
+					//cameFrom.put(current, neighbor);
+					gScore.put(neighbor, tentative_gScore);
+					double h = gScore.get(neighbor) + heuristic(neighbor, go);
+					//Tiebreaking. This reduces this current path's fScore, because it's the most efficient thus far.
+					while (fScore.values().contains(h))
+						h *= 0.999;
+					fScore.put(neighbor, h);
+					
+					System.out.println("fScore of neighbor: " + fScore.get(neighbor).toString());
+				}
+				}
+
 			}
 			System.out.println("Not Evaluated Nodes: " + notEvaluated.toString());
 			System.out.println("Evaluated Nodes: " + evaluated.toString());
@@ -265,8 +294,20 @@ public class RobotTravel extends Robot{
 	public Double heuristic(Point p, Point d) {
 		double dx = Math.abs(p.getX() - d.getX());
 		double dy = Math.abs(p.getY() - d.getY());
+		if (uncertainty) {
+			int numOfX = 0;
+			int numPings = (int) Math.pow(Math.max(cols, rows), 2);
+			for (int i = 0; i < numPings + evaluated.size(); i++) {
+				String current = super.pingMap(d);
+				if (current.equals("X")) numOfX++;
+			}
+			if (numOfX > numPings/2 ) return 100*dx + 100*dy;
+		}
+
+
 		//return dx + dy + (-1)*Math.min(dx, dy);
 		return dx + dy + (-0.6)*Math.min(dx, dy);
+		
 		//return Math.max(dx, dy);
 		//return p.distance(d);
 	}
