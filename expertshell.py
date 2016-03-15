@@ -58,14 +58,23 @@ def listAll():
 def addRoot(strR):
     strRForm = strR.replace("Teach -R ", "")
     root.append(strRForm)
+    indexOfEquals = strR.index("=")
+    secondPart = strR[indexOfEquals-1:]
+    strRForm = strRForm.replace(secondPart, "")
+    falsehoods.append(strRForm)
     return
 
 def addLearned(strR):
     strRForm = strR.replace("Teach -L ", "")
     learned.append(strRForm)
+    indexOfEquals = strR.index("=")
+    secondPart = strR[indexOfEquals-1:]
+    strRForm = strRForm.replace(secondPart, "")
+    falsehoods.append(strRForm)
     return
 
 def addBool(strB):
+
     indexOfEquals = strB.index("=")
     firstPart = strB[6:indexOfEquals-1]
     secondPart = strB[indexOfEquals+2:]
@@ -79,6 +88,12 @@ def addBool(strB):
         if firstPart == val[:val.index("=")-1]:
             varIsInLearned = True
             break
+    # Put all learned variables back into falsehoods, remove from facts
+    # for val in learned:
+    #     temp = val[:val.index("=")-1]
+    #     if temp in facts:
+    #         facts.remove(temp)
+    #         falsehoods.append(temp)
     if varIsInRoot and not varIsInLearned:
         # May need to move this part of if statement for edge cases
         if (not (firstPart in facts)) and secondPart == "true":
@@ -150,29 +165,33 @@ def addRule(strRu):
 # Learn more variables
 def learn():
     # Do a loop thru the rules, then add to learned list on each iteration
-    for r in rules:
-        # Parse the left side of rule, figure out truth value of the stuff on right side of rule
-        # if right side == true, add to learned variables
-        indexOfDash = r.index("-")
-        logicStr = r[:indexOfDash-1]
-        varStr = r[indexOfDash+3:]
-        truthValue = parseLogic(logicStr)
-        varsAreValid = False
-        for value in learned:
+    numIter = len(rules)
+    count = 0
+    while (count < numIter):
+        for r in rules:
+            # Parse the left side of rule, figure out truth value of the stuff on right side of rule
+            # if right side == true, add to learned variables
+            indexOfDash = r.index("-")
+            logicStr = r[:indexOfDash-1]
+            varStr = r[indexOfDash+3:]
+            truthValue = parseLogic(logicStr)
             varsAreValid = False
-            if value.startswith(varStr):
-                varsAreValid = True
-                break
-        if truthValue == True and varsAreValid:
-            if varStr not in facts:
-                facts.append(varStr)
-            if varStr in falsehoods:
-                falsehoods.remove(varStr)
-        elif truthValue == False and varsAreValid:
-            if varStr not in falsehoods:
-                falsehoods.append(varStr)
-            if varStr in facts:
-                facts.remove(varStr)
+            for value in learned:
+                varsAreValid = False
+                if value.startswith(varStr):
+                    varsAreValid = True
+                    break
+            if truthValue == True and varsAreValid:
+                if varStr not in facts:
+                    facts.append(varStr)
+                if varStr in falsehoods:
+                    falsehoods.remove(varStr)
+            elif truthValue == False and varsAreValid:
+                if varStr not in falsehoods:
+                    falsehoods.append(varStr)
+                if varStr in facts:
+                    facts.remove(varStr)
+        count += 1
     return
 
 # Ask about a rule or var
@@ -281,19 +300,19 @@ def why(rawData):
                             break
                     whyStr += "I KNOW THAT IT IS TRUE THAT " + rootRight + "\n"
                     whyStrProps += rootRight
-                elif p in falsehoods:
-                    evalStr += "False"
-                    rootRight = ""
-                    for r in root:
-                        if p == r[:r.index("=")-1]:
-                            rootRight = r[r.index("=")+3: len(r) - 1]
-                            break
-                    for r in learned:
-                        if p == r[:r.index("=")-1]:
-                            rootRight = r[r.index("=")+3: len(r) - 1]
-                            break
-                    whyStr += "I KNOW THAT IT IS NOT TRUE THAT " + rootRight + "\n"
-                    whyStrProps += rootRight
+                # elif p in falsehoods:
+                #     evalStr += "False"
+                #     rootRight = ""
+                #     for r in root:
+                #         if p == r[:r.index("=")-1]:
+                #             rootRight = r[r.index("=")+3: len(r) - 1]
+                #             break
+                #     for r in learned:
+                #         if p == r[:r.index("=")-1]:
+                #             rootRight = r[r.index("=")+3: len(r) - 1]
+                #             break
+                #     whyStr += "I KNOW THAT IT IS NOT TRUE THAT " + rootRight + "\n"
+                #     whyStrProps += rootRight
                 else:
                     propIsPresent = False
                     for r in rules:
@@ -344,19 +363,19 @@ def why(rawData):
                             break
                     whyStr += "I KNOW THAT IT IS TRUE THAT " + rootRight + "\n"
                     whyStrProps += rootRight
-                elif p in falsehoods:
-                    evalStr += "False "
-                    rootRight = ""
-                    for r in root:
-                        if p == r[:r.index("=")-1]:
-                            rootRight = r[r.index("=")+3: len(r) - 1]
-                            break
-                    for r in learned:
-                        if p == r[:r.index("=")-1]:
-                            rootRight = r[r.index("=")+3: len(r) - 1]
-                            break
-                    whyStr += "I KNOW THAT IT IS NOT TRUE THAT " + rootRight + "\n"
-                    whyStrProps += rootRight
+                # elif p in falsehoods:
+                #     evalStr += "False "
+                #     rootRight = ""
+                #     for r in root:
+                #         if p == r[:r.index("=")-1]:
+                #             rootRight = r[r.index("=")+3: len(r) - 1]
+                #             break
+                #     for r in learned:
+                #         if p == r[:r.index("=")-1]:
+                #             rootRight = r[r.index("=")+3: len(r) - 1]
+                #             break
+                #     whyStr += "I KNOW THAT IT IS NOT TRUE THAT " + rootRight + "\n"
+                #     whyStrProps += rootRight
                 else:
                     propIsPresent = False
                     for r in rules:
@@ -366,6 +385,7 @@ def why(rawData):
                         if ruleRight == p:
                             propIsPresent = True
                             boolVal = parseLogic(ruleLeft)
+                            print ruleLeft
                             rootRight = ""
                             for r in root:
                                 if p == r[:r.index("=")-1]:
@@ -463,7 +483,7 @@ def parseLogic(logicStr):
                 p = p + l
                 props.append(p)
                 if p in facts:
-                    evalStr += "True"
+                    evalStr += "True "
 
                     for r in root:
                         if p == r[:r.index("=")-1]:
@@ -471,10 +491,10 @@ def parseLogic(logicStr):
                             break
                     for r in learned:
                         if p == r[:r.index("=")-1]:
-                            masterPropsString = r[r.index("=")+3: len(r) - 1]
+                            masterPropsString += r[r.index("=")+3: len(r) - 1]
                             break
                 elif p in falsehoods:
-                    evalStr += "False"
+                    evalStr += "False "
 
                     for r in root:
                         if p == r[:r.index("=")-1]:
@@ -482,7 +502,7 @@ def parseLogic(logicStr):
                             break
                     for r in learned:
                         if p == r[:r.index("=")-1]:
-                            masterPropsString = r[r.index("=")+3: len(r) - 1]
+                            masterPropsString += r[r.index("=")+3: len(r) - 1]
                             break
 
                 p = ""
@@ -498,7 +518,7 @@ def parseLogic(logicStr):
                             break
                     for r in learned:
                         if p == r[:r.index("=")-1]:
-                            masterPropsString = r[r.index("=")+3: len(r) - 1]
+                            masterPropsString += r[r.index("=")+3: len(r) - 1]
                             break
                 elif p in falsehoods:
                     evalStr += "False "
@@ -509,7 +529,7 @@ def parseLogic(logicStr):
                             break
                     for r in learned:
                         if p == r[:r.index("=")-1]:
-                            masterPropsString = r[r.index("=")+3: len(r) - 1]
+                            masterPropsString += r[r.index("=")+3: len(r) - 1]
                             break
             if l == "&":
                 evalStr += "and "
