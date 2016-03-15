@@ -209,7 +209,7 @@ public class RobotTravel extends Robot{
 	public Double heuristic(Point p, Point d) {
 		double dx = Math.abs(p.getX() - d.getX());
 		double dy = Math.abs(p.getY() - d.getY());
-		if (uncertainty) {
+		if (uncertainty && !walls.contains(d)) {
 			int numOfX = 0;
 			int numPings = (int) Math.pow(Math.max(cols, rows), 2);
 			for (int i = 0; i < numPings; i++) {
