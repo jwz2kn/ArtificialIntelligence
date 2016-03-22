@@ -287,19 +287,49 @@ def why(rawData):
             else: # Takes care of last proposition
                 p = p + l
                 props.append(p)
+                inRules = False
                 if p in facts:
-                    evalStr += "True"
-                    rootRight = ""
-                    for r in root:
-                        if p == r[:r.index("=")-1]:
-                            rootRight = r[r.index("=")+3: len(r) - 1]
+                    for r in rules:
+                        ruleRight = r[r.index(">")+2:]
+                        ruleLeft = r[:r.index("-")-1]
+                        # if right side of the rule == current proposition
+                        if ruleRight == p:
+                            propIsPresent = True
+                            inRules = True
+                            boolVal = parseLogic(ruleLeft)
+                            rootRight = ""
+                            for r in root:
+                                if p == r[:r.index("=")-1]:
+                                    rootRight = r[r.index("=")+3: len(r) - 1]
+                                    break
+                            for r in learned:
+                                if p == r[:r.index("=")-1]:
+                                    rootRight = r[r.index("=")+3: len(r) - 1]
+                                    break
+                            if boolVal == True:
+                                evalStr += "True"
+                                whyStr += "BECAUSE " + masterPropsString + " I KNOW THAT "+ rootRight + "\n"
+                                whyStrProps += rootRight
+                            elif boolVal == False:
+                                evalStr += "False"
+                                whyStr += "BECAUSE IT IS NOT TRUE THAT " + masterPropsString + " I CANNOT PROVE "+ \
+                                          rootRight + "\n"
+                                whyStrProps += rootRight
                             break
-                    for r in learned:
-                        if p == r[:r.index("=")-1]:
-                            rootRight = r[r.index("=")+3: len(r) - 1]
-                            break
-                    whyStr += "I KNOW THAT IT IS TRUE THAT " + rootRight + "\n"
-                    whyStrProps += rootRight
+                    if inRules == False:
+                        evalStr += "True"
+                        rootRight = ""
+                        for r in root:
+                            if p == r[:r.index("=")-1]:
+                                rootRight = r[r.index("=")+3: len(r) - 1]
+                                break
+                        for r in learned:
+                            if p == r[:r.index("=")-1]:
+                                rootRight = r[r.index("=")+3: len(r) - 1]
+                                break
+                        whyStr += "I KNOW THAT IT IS TRUE THAT " + rootRight + "\n"
+                        whyStrProps += rootRight
+
                 # elif p in falsehoods:
                 #     evalStr += "False"
                 #     rootRight = ""
@@ -350,17 +380,50 @@ def why(rawData):
         elif (l == "&") | (l == "|") | (l == "!") | (l == "(") | (l == ")"): # Takes care of middle propositions
             if p != "":
                 props.append(p)
+                p = p + l
+                props.append(p)
+                inRules = False
                 if p in facts:
-                    evalStr += "True "
-                    rootRight = ""
-                    for r in root:
-                        if p == r[:r.index("=")-1]:
-                            rootRight = r[r.index("=")+3: len(r) - 1]
+                    for r in rules:
+                        ruleRight = r[r.index(">")+2:]
+                        ruleLeft = r[:r.index("-")-1]
+                        # if right side of the rule == current proposition
+                        if ruleRight == p:
+                            propIsPresent = True
+                            inRules = True
+                            boolVal = parseLogic(ruleLeft)
+                            rootRight = ""
+                            for r in root:
+                                if p == r[:r.index("=")-1]:
+                                    rootRight = r[r.index("=")+3: len(r) - 1]
+                                    break
+                            for r in learned:
+                                if p == r[:r.index("=")-1]:
+                                    rootRight = r[r.index("=")+3: len(r) - 1]
+                                    break
+                            if boolVal == True:
+                                evalStr += "True"
+                                whyStr += "BECAUSE " + masterPropsString + " I KNOW THAT "+ rootRight + "\n"
+                                whyStrProps += rootRight
+                            elif boolVal == False:
+                                evalStr += "False"
+                                whyStr += "BECAUSE IT IS NOT TRUE THAT " + masterPropsString + " I CANNOT PROVE "+ \
+                                          rootRight + "\n"
+                                whyStrProps += rootRight
                             break
-                    for r in learned:
-                        if p == r[:r.index("=")-1]:
-                            rootRight = r[r.index("=")+3: len(r) - 1]
-                            break
+                    if inRules == False:
+                        evalStr += "True"
+                        rootRight = ""
+                        for r in root:
+                            if p == r[:r.index("=")-1]:
+                                rootRight = r[r.index("=")+3: len(r) - 1]
+                                break
+                        for r in learned:
+                            if p == r[:r.index("=")-1]:
+                                rootRight = r[r.index("=")+3: len(r) - 1]
+                                break
+                        whyStr += "I KNOW THAT IT IS TRUE THAT " + rootRight + "\n"
+                        whyStrProps += rootRight
                     whyStr += "I KNOW THAT IT IS TRUE THAT " + rootRight + "\n"
                     whyStrProps += rootRight
                 # elif p in falsehoods:
