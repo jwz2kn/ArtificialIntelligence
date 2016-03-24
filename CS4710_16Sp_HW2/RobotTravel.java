@@ -206,10 +206,11 @@ public class RobotTravel extends Robot{
 	// not Chebyshev distance, or pure, unmodified Manhattan distance.
 	// http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
 	private List<Point> walls = new ArrayList<Point>();
+	private List<Point> nonWalls = new ArrayList<Point>();
 	public Double heuristic(Point p, Point d) {
 		double dx = Math.abs(p.getX() - d.getX());
 		double dy = Math.abs(p.getY() - d.getY());
-		if (uncertainty && !walls.contains(d)) {
+		if (uncertainty && !walls.contains(d) && !nonWalls.contains(d)) {
 			int numOfX = 0;
 			int numPings = (int) Math.pow(Math.max(cols, rows), 2);
 			for (int i = 0; i < numPings; i++) {
@@ -217,6 +218,7 @@ public class RobotTravel extends Robot{
 				if (current.equals("X")) numOfX++;
 				if (numOfX > numPings/2 ) { walls.add(d); return 10000.0; }
 			}
+			nonWalls.add(d);
 		}
 		return dx + dy + (-0.6)*Math.min(dx, dy);
 	}
