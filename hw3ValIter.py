@@ -1,4 +1,4 @@
-__author__ = 'John Zhang'
+__author__ = 'John Zhang', 'Tyler Ealy'
 
 # Initializations of global variables
 U = {}
