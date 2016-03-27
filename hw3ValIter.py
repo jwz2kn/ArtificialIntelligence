@@ -11,6 +11,7 @@ iters = 0
 d = 0
 sigma = 0.001
 gamma = 1
+windCase = 1
 
 def initialize():
     for i in range(0, 7):
@@ -22,9 +23,11 @@ def initialize():
                 R[i, j] = 0.0
 
 def main():
-    global iters, U, d
+    global iters, U, d, windCase
     initialize()
     print U_prime.keys()
+    print "Value Iterator."
+    windCase = raw_input("Please type wind case 1, 2, or 3.\n")
     while d < sigma or iters > MAX_ITERS:
         U = U_prime
         d = 0
