@@ -15,7 +15,7 @@ gamma = 1
 def initialize():
     for i in range(0, 7):
         for j in range(0, 7):
-            S.append([i,j])
+            S.append((i,j))
             U_prime[i, j] = 0.0
             R[i, j] = -1.0
             if i == 3 and j == 6:
@@ -24,7 +24,7 @@ def initialize():
 def main():
     global iters, U, d
     initialize()
-
+    print U_prime.keys()
     while d < sigma or iters > MAX_ITERS:
         U = U_prime
         d = 0
