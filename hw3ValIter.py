@@ -13,6 +13,9 @@ sigma = 0.001
 gamma = 1
 windCase = 1
 
+gridMin = 0
+gridMax = 6
+
 def initialize():
     for i in range(0, 7):
         for j in range(0, 7):
@@ -38,8 +41,8 @@ def main():
                 d = abs(U_prime[s] - U[s])
         iters += 1
 
-    # do something with U
-    print U
+    # do something with U prime
+    print U_prime
 
     return
 
