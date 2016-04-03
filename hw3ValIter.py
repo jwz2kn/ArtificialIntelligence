@@ -67,7 +67,8 @@ def actionResultList((i,j)):
 
 def maximizer(l):
     maximum = -10000000
-    for i in range(9):
+    length = len(l)
+    for i in range(length):
         if U[l[i][0]]*l[i][1] > maximum:
             maximum = U[l[i][0]]*l[i][1]
     return maximum
