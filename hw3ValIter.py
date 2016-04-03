@@ -17,8 +17,8 @@ gridMin = 0
 gridMax = 6
 
 def initialize():
-    for i in range(0, 7):
-        for j in range(0, 7):
+    for i in range(7):
+        for j in range(7):
             S.append((i,j))
             U_prime[i, j] = 0.0
             R[i, j] = -1.0
@@ -27,8 +27,8 @@ def initialize():
 
 def U_prime_toString():
     U_primeStr = ""
-    for i in range(0, 7):
-        for j in range(0, 7):
+    for i in range(7):
+        for j in range(7):
             U_primeStr = U_primeStr + str('%.1f' % U_prime[(i,j)]) +" " +"\t"
         U_primeStr += "\n"
     return U_primeStr
@@ -61,12 +61,19 @@ def actionResultList((i,j)):
             a[1] = 6
         if a[1] < 0:
             a[1] = 0
-        U_prime_sprime.append(U_prime[tuple(a)])
+        U_prime_sprime.append([tuple(a), U_prime[tuple(a)]])
 
     return U_prime_sprime
 
+def maximizer(l):
+    maximum = -10000000
+    for i in range(9):
+        if U[l[i][0]]*l[i][1] > maximum:
+            maximum = U[l[i][0]]*l[i][1]
+    return maximum
+
 def main():
-    global iters, U, d, windCase
+    global iters, U, U_prime, d, windCase
     initialize()
     print "Value Iterator."
     windCase = int(raw_input("Please type wind case 1, 2, or 3.\n"))
@@ -76,9 +83,7 @@ def main():
         U = U_prime
         d = 0
         for s in S:
-            #print s
-            #print s, actionResultList(s) ,max(actionResultList(s))
-            U_prime[s] = R[s] #+ max(actionResultList(s))# + max action with given constraints and transition model
+            U_prime[s] = R[s] + maximizer(actionResultList(s))
             if abs(U_prime[s] - U[s]) > d:
                 d = abs(U_prime[s] - U[s])
         print "Iteration", iters
