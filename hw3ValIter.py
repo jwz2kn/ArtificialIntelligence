@@ -33,6 +33,14 @@ def U_prime_toString():
         U_primeStr += "\n"
     return U_primeStr
 
+def U_toString():
+    U_Str = ""
+    for i in range(7):
+        for j in range(7):
+            U_Str = U_Str + str('%.1f' % U[(i,j)]) +" " +"\t"
+        U_Str += "\n"
+    return U_Str
+
 def actionResultList((i,j)):
     U_prime_sprime = list()
     Actions = list()
