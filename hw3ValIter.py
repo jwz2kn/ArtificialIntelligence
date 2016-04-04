@@ -59,7 +59,7 @@ def actionResultList((i,j)):
     Actions.append(S); Actions.append(SW); Actions.append(W); Actions.append(NW);
 
     for a in Actions:
-        if windCase != 1 and (a[1] == 3 or a[1] == 4 or a[1] == 5):
+        if windCase != 1 and (a[1] == 3+1 or a[1] == 4+1 or a[1] == 5+1):
             a[0] = a[0] - windCase + 1
         if a[0] > 6:
             a[0] = 6
