@@ -1,4 +1,4 @@
-__author__ = 'John Zhang, jwz2kn@virginia.edu', 'Tyler Ealy, tre2ca@virginia.edu'
+__author__ = 'John Zhang, jwz2kn@virginia.edu', 'Tyler Ealy, tre7ca@virginia.edu'
 
 import json
 import numpy as np
