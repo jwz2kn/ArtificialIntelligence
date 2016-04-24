@@ -16,8 +16,9 @@ def main():
             data.append(json.loads(line))
     dummyVarDenominator = len(data)
     fillProbOfEachLabelDict()
-    #print(sum(probOfEachLabelDict.values()))
-    #print(len(probOfEachLabelDict))
+    print(sum(probOfEachLabelDict.values()))
+    print(len(probOfEachLabelDict))
+    print(probOfEachLabelDict)
     #print_training_data(data)
     #print(len(data))
 
