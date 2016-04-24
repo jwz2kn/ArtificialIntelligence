@@ -5,12 +5,15 @@ import numpy as np
 import math
 
 data = list()
+ingredients = list()
 dummyVarNumerator = 1.0
 dummyVarDenominator = 1
 probOfEachLabelDict = {}
 nLogProbOfEachLabel = {}
 probOfEachIngredGivenLabel = {}
-NumOfIngredientsGivenCuisine = {}
+NumOfRecipesGivenCuisine = {}
+NumOfTimesIngredientOccursGivenC = {}
+
 
 # JSON path
 
@@ -19,18 +22,29 @@ def main():
     with open('/Users/John/Desktop/CS 4710/ArtificialIntelligence/Homework 4/training_data.json', 'r') as json_data:
         for line in json_data:
             data.append(json.loads(line))
-    dummyVarDenominator = len(data)
+    with open('/Users/John/Desktop/CS 4710/ArtificialIntelligence/Homework 4/ingredients.txt', 'r') as ingredients_text:
+        for line in ingredients_text:
+            ingredients.append(json.loads(line))
+    dummyVarDenominator = len(ingredients)
     fillProbOfEachLabelDict()
     nLogProbOfEachLabel = nLogOfDict(probOfEachLabelDict)
-    fillNumIngredGivenC()
+    fillNumRecipeGivenC()
+    initializeIngredProbList()
+    makeIngredientsOccurencesDict()
+    #print(NumOfTimesIngredientOccursGivenC['Turkish bay leaves'])
+    fillIngredProbList()
+    # print(NumOfRecipesGivenCuisine)
+    # print(probOfEachIngredGivenLabel['chinese']['Turkish bay leaves'])
+    # print(probOfEachIngredGivenLabel['greek']['Turkish bay leaves'])
     # print(sum(probOfEachLabelDict.values()))
     # print(len(probOfEachLabelDict))
     # print(probOfEachLabelDict)
     # print(nLogProbOfEachLabel)
-    # initializeIngredProbList()
-    print(NumOfIngredientsGivenCuisine)
+
+    #print(NumOfRecipesGivenCuisine)
     #print_training_data(data)
     #print(len(data))
+    #print(len(ingredients))
 
 
 def print_training_data(d):
@@ -47,6 +61,7 @@ def nLogOfDict(dict):
 
 
 def fillProbOfEachLabelDict():
+    # This is WITHOUT natural log transform
     denom = len(data)
     numer = 0.0
     currentLabel = ""
@@ -72,34 +87,62 @@ def initializeIngredProbList():
     keys = probOfEachLabelDict.keys()
     for k in keys:
         probOfEachIngredGivenLabel[k] = {}
-    print probOfEachIngredGivenLabel
+    #print probOfEachIngredGivenLabel
 
 
 def fillIngredProbList():
-    global probOfEachIngredGivenLabel
-    keys = probOfEachLabelDict.keys()
+    global probOfEachIngredGivenLabel, NumOfTimesIngredientOccursGivenC, NumOfRecipesGivenCuisine
+    cuisines = probOfEachLabelDict.keys()
+    for c in cuisines:
+        probOfEachIngredGivenLabel[c] = {}
+        for i in ingredients:
+            # This is WITH smoothing and natural log transform
+            probOfEachIngredGivenLabel[c][i] = math.log((NumOfTimesIngredientOccursGivenC[i][c] + dummyVarNumerator) \
+                                               / (NumOfRecipesGivenCuisine[c] + dummyVarDenominator))
 
-
-def fillNumIngredGivenC():
+def fillNumRecipeGivenC():
     l = len(data)
-    currentIngredientsSum = 0
+    numer = 0
     currentLabel = ""
     for i in range(l):
         if i == 0:
             currentLabel = data[i]['cuisine']
-            currentIngredientsSum += len(data[i]['ingredients'])
+            numer += 1
             continue
         if data[i]['cuisine'] == currentLabel:
-            currentIngredientsSum += len(data[i]['ingredients'])
+            numer += 1
         elif data[i]['cuisine'] != currentLabel:
-            NumOfIngredientsGivenCuisine[currentLabel] = currentIngredientsSum
-            # reset + count the current thing
+            NumOfRecipesGivenCuisine[currentLabel] = numer
+            numer = 1
             currentLabel = data[i]['cuisine']
-            currentIngredientsSum = 0
-            currentIngredientsSum += len(data[i]['ingredients'])
         if i == l - 1:
-            currentIngredientsSum += len(data[i]['ingredients'])
-            NumOfIngredientsGivenCuisine[currentLabel] = currentIngredientsSum
+            NumOfRecipesGivenCuisine[currentLabel] = numer
+
+
+def makeIngredientsOccurencesDict():
+    global NumOfTimesIngredientOccursGivenC
+    l = len(ingredients)
+    cuisines = probOfEachLabelDict.keys()
+    currentNumberOfIngredGivenC = 0
+    m = len(data)
+    for i in ingredients:
+        NumOfTimesIngredientOccursGivenC[i] = {}
+        for c in cuisines:
+            for j in range(m):
+                if data[j]['cuisine'] == c and i in data[j]['ingredients']:
+                    currentNumberOfIngredGivenC += 1
+            NumOfTimesIngredientOccursGivenC[i][c] = currentNumberOfIngredGivenC
+            currentNumberOfIngredGivenC = 0
+
+
+def naïve_bayes_classifer():
+    print 1
+
+
+def classify_new_instance():
+    print 1
+
+    
 
 if __name__ == "__main__":
     main()
