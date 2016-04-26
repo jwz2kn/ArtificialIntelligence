@@ -1,15 +1,21 @@
 __author__ = 'John Zhang, jwz2kn@virginia.edu', 'Tyler Ealy, tre7ca@virginia.edu'
 
 import json
-import numpy as np
 import math
 import csv
+import time
+import resource
+import platform
+
+print "Machine Learning with Cuisine Training Set Data"
+start_time = time.time()
 
 data = list()
 ingredients = list()
 testing_data = list()
 dummyVarNumerator = 1.0
 dummyVarDenominator = 1
+recipesGivenCuisine = {}
 probOfEachLabelDict = {}
 nLogProbOfEachLabel = {}
 probOfEachIngredGivenLabel = {}
@@ -39,6 +45,7 @@ def main():
     #print(NumOfTimesIngredientOccursGivenC['Turkish bay leaves'])
     fillIngredProbList()
     naive_bayes_learn(testing_data)
+    # print(recipesGivenCuisine['greek'])
     # print(NumOfRecipesGivenCuisine)
     # print(probOfEachIngredGivenLabel['chinese']['Turkish bay leaves'])
     # print(probOfEachIngredGivenLabel['greek']['Turkish bay leaves'])
@@ -71,21 +78,29 @@ def fillProbOfEachLabelDict():
     denom = len(data)
     numer = 0.0
     currentLabel = ""
+    currentCuisineRecipes = list()
     for i in range(denom):
         if i == 0:
             currentLabel = data[i]['cuisine']
+            currentCuisineRecipes.append(data[i])
             numer += 1
             continue
         if data[i]['cuisine'] == currentLabel:
+            currentCuisineRecipes.append(data[i])
             numer += 1
         elif data[i]['cuisine'] != currentLabel:
             currentProb = numer/denom
             probOfEachLabelDict[currentLabel] = currentProb
+            recipesGivenCuisine[currentLabel] = currentCuisineRecipes
             numer = 1.0
             currentLabel = data[i]['cuisine']
+            currentCuisineRecipes = list()
+            currentCuisineRecipes.append(data[i])
         if i == denom - 1:
             currentProb = numer/denom
             probOfEachLabelDict[currentLabel] = currentProb
+            currentCuisineRecipes.append(data[i])
+            recipesGivenCuisine[currentLabel] = currentCuisineRecipes
 
 
 def initializeIngredProbList():
@@ -134,8 +149,9 @@ def makeIngredientsOccurencesDict():
         NumOfTimesIngredientOccursGivenC[i] = {}
         for c in cuisines:
             currentNumberOfIngredGivenC = 0
-            for j in range(m):
-                if data[j]['cuisine'] == c and i in data[j]['ingredients']:
+            currentCuisineRecipes = recipesGivenCuisine[c]
+            for item in currentCuisineRecipes:
+                if i in item['ingredients']: # data[j]['cuisine'] == c and
                     currentNumberOfIngredGivenC += 1
             NumOfTimesIngredientOccursGivenC[i][c] = currentNumberOfIngredGivenC
 
@@ -157,7 +173,7 @@ def naive_bayes_learn(examples):
                     currentMaxScore = classify_new_instance(testing_data[i]['ingredients'], c)
                     chosenLabel = c
             csvwriter.writerow([testing_data[i]['id'], chosenLabel])
-            print chosenLabel
+            print testing_data[i]['id'], chosenLabel
 
 
 def classify_new_instance(ingredients, c):
@@ -176,5 +192,17 @@ def search_match_current_data(ingredients):
             break
     return label
 
+
 if __name__ == "__main__":
     main()
+
+plat = platform.platform()
+multiplier = 1e-6
+lb = "MB"
+if "Linux" in plat:
+    multiplier = 1
+    lb = "KB"
+
+print plat
+print("EXECUTION TIME: %.6f s" % (time.time() - start_time))
+print "MEMORY USAGE: ", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * multiplier, lb
