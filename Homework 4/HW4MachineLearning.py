@@ -200,9 +200,19 @@ plat = platform.platform()
 multiplier = 1e-6
 lb = "MB"
 if "Linux" in plat:
-    multiplier = 1
-    lb = "KB"
+    # Linux gets memory in KB, not B, still need to convert to MB for display
+    multiplier = 0.001
 
-print plat
+print "PLATFORM:", plat
 print("EXECUTION TIME: %.6f s" % (time.time() - start_time))
-print "MEMORY USAGE: ", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * multiplier, lb
+if "Windows" not in plat:
+    print "MEMORY USAGE:", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * multiplier, lb
+else:
+    print "Windows memory measurement may have errors"
+    def memory():
+        import os
+        import WMI
+        w = WMI('.')
+        result = w.query("SELECT WorkingSet FROM Win32_PerfRawData_PerfProc_Process WHERE IDProcess=%d" % os.getpid())
+        return int(result[0].WorkingSet)
+    print "MEMORY USAGE:",memory()*multiplier, lb
