@@ -25,8 +25,8 @@ data = list()
 ingredients = list()
 testing_data = list()
 
-dummyVarNumerator = 1.0
-dummyVarDenominator = 1
+dummyVarNumerator = 0.00001
+dummyVarDenominator = 40
 
 recipesGivenCuisine = {}
 probOfEachLabelDict = {}
@@ -48,7 +48,7 @@ def main():
     with open(test_data_path, 'r') as json_test_sample:
         for line in json_test_sample:
             testing_data.append(json.loads(line))
-    dummyVarDenominator = len(ingredients)
+    dummyVarDenominator += len(ingredients)
     fillProbOfEachLabelDict()
     nLogProbOfEachLabel = nLogOfDict(probOfEachLabelDict)
     fillNumRecipeGivenC()
@@ -205,8 +205,24 @@ def search_match_current_data(ingreds):
     return label
 
 
+def accuracy_checker():
+    l = 783.0
+    curr = 0
+    with open('recipes.csv', 'r') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter=',')
+        for line in csvreader:
+            if line[0] == 'id':
+                continue
+            if line[0] == '784':
+                break
+            if data[int(line[0])]['id'] == int(line[0]) and data[int(line[0])]['cuisine'] == line[1]:
+                curr += 1
+    print "Correct:", curr, "\tTotal:", 783
+    print "Percentage Correct:", str(100*curr/l)+" %"
+
 if __name__ == "__main__":
     main()
+    #accuracy_checker()
 
 plat = platform.platform()
 multiplier = 1e-6
@@ -221,3 +237,9 @@ if "Windows" not in plat:
     print "MEMORY USAGE:", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * multiplier, lb
 else:
     print "Windows memory measurement not available. Usage similar to Mac and Linux, about 14 MB"
+
+# {"id":784,"ingredients":["water","sugar","grated lemon zest","butter","pitted date","blanched almonds"]}
+# {"id":785,"ingredients":["soy sauce","oil","mirin","beef","onions","sake","edamame"]}
+# {"id":0,"ingredients":["romaine lettuce","black olives","grape tomatoes","garlic","pepper","purple onion","seasoning","garbanzo beans","feta cheese crumbles"]}
+# {"id":579,"ingredients":["fish sauce","asian basil","yellow bean sauce","rice noodles","ground white pepper","pork sausages","red chili peppers","hoisin sauce","spring onions","salt","dried shrimp","banana blossom","sugar","pork ribs","bawang goreng","lemon","beansprouts","chicken","eggs","water","leeks","shallots","cilantro leaves","onions"]}
+# {"id":152,"cuisine":"indian","ingredients":["clove","cilantro leaves","ghee","cinnamon","jeera","water","cardamom","basmati rice","salt","bay leaf"]}
