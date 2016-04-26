@@ -8,32 +8,44 @@ import resource
 import platform
 
 print "Machine Learning with Cuisine Training Set Data"
+print "Please make sure to open .py file and use correct data paths"
+
+training_data_path = '/Users/John/Desktop/CS 4710/ArtificialIntelligence/Homework 4/training_data.json'
+ingredients_path = '/Users/John/Desktop/CS 4710/ArtificialIntelligence/Homework 4/ingredients.txt'
+test_data_path = '/Users/John/Desktop/CS 4710/ArtificialIntelligence/Homework 4/test_data_sample.json'
+
+print "Current data paths: "
+print "Training Data Path:", training_data_path
+print "Ingredients Path:", ingredients_path
+print "Testing Data Path:", test_data_path
+
 start_time = time.time()
 
 data = list()
 ingredients = list()
 testing_data = list()
+
 dummyVarNumerator = 1.0
 dummyVarDenominator = 1
+
 recipesGivenCuisine = {}
 probOfEachLabelDict = {}
 nLogProbOfEachLabel = {}
+
 probOfEachIngredGivenLabel = {}
 NumOfRecipesGivenCuisine = {}
 NumOfTimesIngredientOccursGivenC = {}
 
 
-# JSON path
-
 def main():
     global dummyVarDenominator, nLogProbOfEachLabel
-    with open('/Users/John/Desktop/CS 4710/ArtificialIntelligence/Homework 4/training_data.json', 'r') as json_data:
+    with open(training_data_path, 'r') as json_data:
         for line in json_data:
             data.append(json.loads(line))
-    with open('/Users/John/Desktop/CS 4710/ArtificialIntelligence/Homework 4/ingredients.txt', 'r') as ingredients_text:
+    with open(ingredients_path, 'r') as ingredients_text:
         for line in ingredients_text:
             ingredients.append(json.loads(line))
-    with open ('/Users/John/Desktop/CS 4710/ArtificialIntelligence/Homework 4/test_data_sample.json', 'r') as json_test_sample:
+    with open(test_data_path, 'r') as json_test_sample:
         for line in json_test_sample:
             testing_data.append(json.loads(line))
     dummyVarDenominator = len(ingredients)
@@ -42,7 +54,7 @@ def main():
     fillNumRecipeGivenC()
     initializeIngredProbList()
     makeIngredientsOccurencesDict()
-    #print(NumOfTimesIngredientOccursGivenC['Turkish bay leaves'])
+    # print(NumOfTimesIngredientOccursGivenC['Turkish bay leaves'])
     fillIngredProbList()
     naive_bayes_learn(testing_data)
     # print(recipesGivenCuisine['greek'])
@@ -51,13 +63,13 @@ def main():
     # print(probOfEachIngredGivenLabel['greek']['Turkish bay leaves'])
     # print(sum(probOfEachLabelDict.values()))
     # print(len(probOfEachLabelDict))
-    #print(probOfEachLabelDict)
-    #print(nLogProbOfEachLabel)
+    # print(probOfEachLabelDict)
+    # print(nLogProbOfEachLabel)
 
-    #print(NumOfRecipesGivenCuisine)
-    #print_training_data(data)
-    #print(len(data))
-    #print(len(ingredients))
+    # print(NumOfRecipesGivenCuisine)
+    # print_training_data(data)
+    # print(len(data))
+    # print(len(ingredients))
 
 
 def print_training_data(d):
@@ -65,11 +77,11 @@ def print_training_data(d):
         print(json.dumps(d[i]))
 
 
-def nLogOfDict(dict):
-    keys = dict.keys()
+def nLogOfDict(d):
+    keys = d.keys()
     endDict = {}
     for k in keys:
-        endDict[k] = math.log(dict[k])
+        endDict[k] = math.log(d[k])
     return endDict
 
 
@@ -176,18 +188,18 @@ def naive_bayes_learn(examples):
             print testing_data[i]['id'], chosenLabel
 
 
-def classify_new_instance(ingredients, c):
+def classify_new_instance(ingreds, c):
     vnb = nLogProbOfEachLabel[c]
-    for i in ingredients:
+    for i in ingreds:
         vnb += probOfEachIngredGivenLabel[c][i]
     return vnb
 
 
-def search_match_current_data(ingredients):
+def search_match_current_data(ingreds):
     l = len(data)
     label = ""
     for i in range(l):
-        if data[i]['ingredients'] == ingredients:
+        if data[i]['ingredients'] == ingreds:
             label = data[i]['cuisine']
             break
     return label
@@ -208,11 +220,4 @@ print("EXECUTION TIME: %.6f s" % (time.time() - start_time))
 if "Windows" not in plat:
     print "MEMORY USAGE:", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * multiplier, lb
 else:
-    print "Windows memory measurement may have errors"
-    def memory():
-        import os
-        import WMI
-        w = WMI('.')
-        result = w.query("SELECT WorkingSet FROM Win32_PerfRawData_PerfProc_Process WHERE IDProcess=%d" % os.getpid())
-        return int(result[0].WorkingSet)
-    print "MEMORY USAGE:",memory()*multiplier, lb
+    print "Windows memory measurement not available. Usage similar to Mac and Linux, about 14 MB"
