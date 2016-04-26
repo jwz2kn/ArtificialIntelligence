@@ -20,7 +20,7 @@ print "Ingredients Path:", ingredients_path
 print "Testing Data Path:", test_data_path
 
 start_time = time.time()
-
+print("\nLearning...\n")
 data = list()
 ingredients = list()
 testing_data = list()
@@ -174,6 +174,7 @@ def naive_bayes_learn(examples):
     with open('recipes.csv', 'wb') as csvfile:
         csvwriter = csv.writer(csvfile, delimiter=',')
         csvwriter.writerow(['id', 'cuisine'])
+        print "Up to 10 example answers: "
         for i in range(l):
             chosenLabel = ""
             currentMaxScore = float("-inf")
@@ -185,7 +186,8 @@ def naive_bayes_learn(examples):
                     currentMaxScore = classify_new_instance(testing_data[i]['ingredients'], c)
                     chosenLabel = c
             csvwriter.writerow([testing_data[i]['id'], chosenLabel])
-            print testing_data[i]['id'], chosenLabel
+            if i < 10:
+                print testing_data[i]['id'], chosenLabel
 
 
 def classify_new_instance(ingreds, c):
@@ -231,7 +233,7 @@ if "Linux" in plat:
     # Linux gets memory in KB, not B, still need to convert to MB for display
     multiplier = 0.001
 
-print "PLATFORM:", plat
+print "\nPLATFORM:", plat
 print("EXECUTION TIME: %.6f s" % (time.time() - start_time))
 if "Windows" not in plat:
     print "MEMORY USAGE:", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * multiplier, lb
