@@ -3,9 +3,11 @@ __author__ = 'John Zhang, jwz2kn@virginia.edu', 'Tyler Ealy, tre7ca@virginia.edu
 import json
 import numpy as np
 import math
+import csv
 
 data = list()
 ingredients = list()
+testing_data = list()
 dummyVarNumerator = 1.0
 dummyVarDenominator = 1
 probOfEachLabelDict = {}
@@ -18,13 +20,16 @@ NumOfTimesIngredientOccursGivenC = {}
 # JSON path
 
 def main():
-    global dummyVarDenominator
+    global dummyVarDenominator, nLogProbOfEachLabel
     with open('/Users/John/Desktop/CS 4710/ArtificialIntelligence/Homework 4/training_data.json', 'r') as json_data:
         for line in json_data:
             data.append(json.loads(line))
     with open('/Users/John/Desktop/CS 4710/ArtificialIntelligence/Homework 4/ingredients.txt', 'r') as ingredients_text:
         for line in ingredients_text:
             ingredients.append(json.loads(line))
+    with open ('/Users/John/Desktop/CS 4710/ArtificialIntelligence/Homework 4/test_data_sample.json', 'r') as json_test_sample:
+        for line in json_test_sample:
+            testing_data.append(json.loads(line))
     dummyVarDenominator = len(ingredients)
     fillProbOfEachLabelDict()
     nLogProbOfEachLabel = nLogOfDict(probOfEachLabelDict)
@@ -33,13 +38,14 @@ def main():
     makeIngredientsOccurencesDict()
     #print(NumOfTimesIngredientOccursGivenC['Turkish bay leaves'])
     fillIngredProbList()
+    naive_bayes_learn(testing_data)
     # print(NumOfRecipesGivenCuisine)
     # print(probOfEachIngredGivenLabel['chinese']['Turkish bay leaves'])
     # print(probOfEachIngredGivenLabel['greek']['Turkish bay leaves'])
     # print(sum(probOfEachLabelDict.values()))
     # print(len(probOfEachLabelDict))
-    # print(probOfEachLabelDict)
-    # print(nLogProbOfEachLabel)
+    #print(probOfEachLabelDict)
+    #print(nLogProbOfEachLabel)
 
     #print(NumOfRecipesGivenCuisine)
     #print_training_data(data)
@@ -123,26 +129,52 @@ def makeIngredientsOccurencesDict():
     global NumOfTimesIngredientOccursGivenC
     l = len(ingredients)
     cuisines = probOfEachLabelDict.keys()
-    currentNumberOfIngredGivenC = 0
     m = len(data)
     for i in ingredients:
         NumOfTimesIngredientOccursGivenC[i] = {}
         for c in cuisines:
+            currentNumberOfIngredGivenC = 0
             for j in range(m):
                 if data[j]['cuisine'] == c and i in data[j]['ingredients']:
                     currentNumberOfIngredGivenC += 1
             NumOfTimesIngredientOccursGivenC[i][c] = currentNumberOfIngredGivenC
-            currentNumberOfIngredGivenC = 0
 
 
-def naïve_bayes_classifer():
-    print 1
+def naive_bayes_learn(examples):
+    l = len(examples)
+    cuisines = probOfEachLabelDict.keys()
+    with open('recipes.csv', 'wb') as csvfile:
+        csvwriter = csv.writer(csvfile, delimiter=',')
+        csvwriter.writerow(['id', 'cuisine'])
+        for i in range(l):
+            chosenLabel = ""
+            currentMaxScore = float("-inf")
+            for c in cuisines:
+                if search_match_current_data(testing_data[i]['ingredients']) != "":
+                    chosenLabel = search_match_current_data(testing_data[i]['ingredients'])
+                    break
+                if classify_new_instance(testing_data[i]['ingredients'], c) > currentMaxScore:
+                    currentMaxScore = classify_new_instance(testing_data[i]['ingredients'], c)
+                    chosenLabel = c
+            csvwriter.writerow([testing_data[i]['id'], chosenLabel])
+            print chosenLabel
 
 
-def classify_new_instance():
-    print 1
+def classify_new_instance(ingredients, c):
+    vnb = nLogProbOfEachLabel[c]
+    for i in ingredients:
+        vnb += probOfEachIngredGivenLabel[c][i]
+    return vnb
 
-    
+
+def search_match_current_data(ingredients):
+    l = len(data)
+    label = ""
+    for i in range(l):
+        if data[i]['ingredients'] == ingredients:
+            label = data[i]['cuisine']
+            break
+    return label
 
 if __name__ == "__main__":
     main()
