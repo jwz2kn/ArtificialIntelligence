@@ -54,22 +54,8 @@ def main():
     fillNumRecipeGivenC()
     initializeIngredProbList()
     makeIngredientsOccurencesDict()
-    # print(NumOfTimesIngredientOccursGivenC['Turkish bay leaves'])
     fillIngredProbList()
     naive_bayes_learn(testing_data)
-    # print(recipesGivenCuisine['greek'])
-    # print(NumOfRecipesGivenCuisine)
-    # print(probOfEachIngredGivenLabel['chinese']['Turkish bay leaves'])
-    # print(probOfEachIngredGivenLabel['greek']['Turkish bay leaves'])
-    # print(sum(probOfEachLabelDict.values()))
-    # print(len(probOfEachLabelDict))
-    # print(probOfEachLabelDict)
-    # print(nLogProbOfEachLabel)
-
-    # print(NumOfRecipesGivenCuisine)
-    # print_training_data(data)
-    # print(len(data))
-    # print(len(ingredients))
 
 
 def print_training_data(d):
@@ -120,7 +106,6 @@ def initializeIngredProbList():
     keys = probOfEachLabelDict.keys()
     for k in keys:
         probOfEachIngredGivenLabel[k] = {}
-    #print probOfEachIngredGivenLabel
 
 
 def fillIngredProbList():
@@ -132,6 +117,7 @@ def fillIngredProbList():
             # This is WITH smoothing and natural log transform
             probOfEachIngredGivenLabel[c][i] = math.log((NumOfTimesIngredientOccursGivenC[i][c] + dummyVarNumerator) \
                                                / (NumOfRecipesGivenCuisine[c] + dummyVarDenominator))
+
 
 def fillNumRecipeGivenC():
     l = len(data)
@@ -163,7 +149,7 @@ def makeIngredientsOccurencesDict():
             currentNumberOfIngredGivenC = 0
             currentCuisineRecipes = recipesGivenCuisine[c]
             for item in currentCuisineRecipes:
-                if i in item['ingredients']: # data[j]['cuisine'] == c and
+                if i in item['ingredients']:
                     currentNumberOfIngredGivenC += 1
             NumOfTimesIngredientOccursGivenC[i][c] = currentNumberOfIngredGivenC
 
@@ -224,7 +210,7 @@ def accuracy_checker():
 
 if __name__ == "__main__":
     main()
-    #accuracy_checker()
+    # accuracy_checker() here only to check accuracy on training set
 
 plat = platform.platform()
 multiplier = 1e-6
